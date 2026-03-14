@@ -38,10 +38,11 @@ paad/
 ## Adding a new skill
 
 1. Create `plugins/paad/skills/<skill-name>/SKILL.md` with frontmatter (`name`, `description`) and instructions
-2. Validate with `claude plugin validate ./plugins/paad`
-3. Test locally with `claude --plugin-dir ./plugins/paad`
-4. Bump the version in both `plugins/paad/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`
-5. Update `README.md` to document the new skill under "Available Skills"
+2. Consider `$ARGUMENTS` support — if the skill could benefit from user-provided scope (a file path, directory, branch name, etc.), add an Arguments section documenting usage. Users shouldn't need to remember flags; keep arguments positional and intuitive (e.g., `/paad:skillname path/to/scope`).
+3. Validate with `claude plugin validate ./plugins/paad`
+4. Test locally with `claude --plugin-dir ./plugins/paad`
+5. Bump the version in both `plugins/paad/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`
+6. Update `README.md` to document the new skill under "Available Skills", including argument syntax in the heading
 
 ## Important rules
 

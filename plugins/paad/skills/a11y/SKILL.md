@@ -11,6 +11,16 @@ Multi-agent accessibility audit of user-facing code across any platform. Dispatc
 
 **This is a technique skill.** Follow the phases in order. Do not skip verification.
 
+## Arguments
+
+`/paad:a11y` accepts optional `$ARGUMENTS`:
+
+- `/paad:a11y` — audit all user-facing code in the repository
+- `/paad:a11y src/components/` — scope the audit to a specific directory
+- `/paad:a11y src/components/Modal.tsx` — audit a specific file
+
+When a path is provided, only audit files within that scope. Still detect platform and run all specialists, but limit the file manifest accordingly.
+
 ## Pre-flight Checks
 
 ```dot
