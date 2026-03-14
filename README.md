@@ -48,6 +48,18 @@ Performs a comprehensive architecture analysis of the current codebase and write
 
 This is a diagnosis-only tool — it identifies strengths and problems with evidence but does not propose fixes.
 
+### `/paad:agentic-review`
+
+Multi-agent bug-hunting review of the current branch against main. Dispatches specialist agents in parallel, verifies findings to filter false positives, ranks by severity, and produces a persistent report.
+
+- **5 specialist agents** run in parallel: Logic & Correctness, Error Handling & Edge Cases, Contract & Integration, Concurrency & State, Security
+- **Verification phase** filters false positives and deduplicates findings across specialists
+- **Severity ranking**: Critical / Important / Suggestion
+- **Plan alignment** (conditional): if design docs are found, checks implementation against the plan
+- **Persistent report** written to `docs/reviews/`
+
+Requires a feature branch (not main/master) with committed changes.
+
 ## Local Development
 
 Test the plugin locally without installing:
@@ -56,7 +68,7 @@ Test the plugin locally without installing:
 claude --plugin-dir ./plugins/paad
 ```
 
-Then invoke skills with `/paad:architecture`.
+Then invoke skills with `/paad:architecture`, `/paad:agentic-review`, etc.
 
 After making changes, run `/reload-plugins` inside Claude Code to pick up updates without restarting.
 

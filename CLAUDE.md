@@ -15,6 +15,8 @@ paad/
 │       ├── .claude-plugin/
 │       │   └── plugin.json        ← plugin manifest (name, version, metadata)
 │       └── skills/
+│           ├── agentic-review/
+│           │   └── SKILL.md       ← /paad:agentic-review skill
 │           └── architecture/
 │               └── SKILL.md       ← /paad:architecture skill
 ├── CLAUDE.md                      ← this file
@@ -35,6 +37,7 @@ paad/
 2. Validate with `claude plugin validate ./plugins/paad`
 3. Test locally with `claude --plugin-dir ./plugins/paad`
 4. Bump the version in both `plugins/paad/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`
+5. Update `README.md` to document the new skill under "Available Skills"
 
 ## Important rules
 
