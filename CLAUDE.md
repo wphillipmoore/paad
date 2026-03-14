@@ -17,12 +17,14 @@ paad/
 │       └── skills/
 │           ├── a11y/
 │           │   └── SKILL.md       ← /paad:a11y skill
-│           ├── agentic-review/
-│           │   └── SKILL.md       ← /paad:agentic-review skill
 │           ├── agentic-architecture/
 │           │   └── SKILL.md       ← /paad:agentic-architecture skill
+│           ├── agentic-review/
+│           │   └── SKILL.md       ← /paad:agentic-review skill
 │           ├── alignment/
 │           │   └── SKILL.md       ← /paad:alignment skill
+│           ├── help/
+│           │   └── SKILL.md       ← /paad:help skill
 │           ├── pushback/
 │           │   └── SKILL.md       ← /paad:pushback skill
 │           └── vibe/
@@ -47,6 +49,11 @@ paad/
 4. Test locally with `claude --plugin-dir ./plugins/paad`
 5. Bump the version in both `plugins/paad/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`
 6. Update `README.md` to document the new skill under "Available Skills", including argument syntax in the heading
+7. Add the new skill to `paad:help` — both the overview table and a detailed help section
+
+## Modifying an existing skill
+
+When changing a skill's behavior, arguments, or output, review `plugins/paad/skills/help/SKILL.md` and update the corresponding help text to match.
 
 ## Important rules
 
