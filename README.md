@@ -77,6 +77,16 @@ Comprehensive architecture analysis of the current codebase. Diagnosis only — 
 - **Next questions** to guide follow-up investigation
 - **Report** written to `paad/architecture-reviews/`
 
+### `/paad:pushback`
+
+Critically reviews a spec, PRD, requirements document, or design plan before work begins. Checks source control for conflicts with reality, then walks through issues one at a time in severity order.
+
+- **Input resolution** — accepts a file path argument (`/paad:pushback path/to/spec.md`), detects specs from conversation history, or scans common locations
+- **Source control reality check** — scans recent git history for commits that conflict with what the spec assumes, presented upfront before other analysis
+- **6 analysis categories**: contradictions, feasibility, scope imbalance, omissions, ambiguity, security concerns
+- **Severity-ordered, one issue at a time** — most impactful issues first, with concrete options and recommendations; stop when you've had enough
+- **Flexible output** — update the spec in-place or write a separate report to `paad/pushback-reviews/`
+
 ## Local Development
 
 Test the plugin locally without installing:
@@ -85,7 +95,7 @@ Test the plugin locally without installing:
 claude --plugin-dir ./plugins/paad
 ```
 
-Then invoke skills with `/paad:a11y`, `/paad:agentic-review`, `/paad:architecture`, etc.
+Then invoke skills with `/paad:a11y`, `/paad:agentic-review`, `/paad:architecture`, `/paad:pushback`, etc.
 
 After making changes, run `/reload-plugins` inside Claude Code to pick up updates without restarting.
 

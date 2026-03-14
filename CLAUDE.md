@@ -19,8 +19,10 @@ paad/
 │           │   └── SKILL.md       ← /paad:a11y skill
 │           ├── agentic-review/
 │           │   └── SKILL.md       ← /paad:agentic-review skill
-│           └── architecture/
-│               └── SKILL.md       ← /paad:architecture skill
+│           ├── architecture/
+│           │   └── SKILL.md       ← /paad:architecture skill
+│           └── pushback/
+│               └── SKILL.md       ← /paad:pushback skill
 ├── CLAUDE.md                      ← this file
 └── README.md
 ```
