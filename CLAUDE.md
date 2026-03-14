@@ -19,6 +19,8 @@ paad/
 │           │   └── SKILL.md       ← /paad:a11y skill
 │           ├── agentic-review/
 │           │   └── SKILL.md       ← /paad:agentic-review skill
+│           ├── alignment/
+│           │   └── SKILL.md       ← /paad:alignment skill
 │           ├── architecture/
 │           │   └── SKILL.md       ← /paad:architecture skill
 │           └── pushback/

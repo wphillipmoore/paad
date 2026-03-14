@@ -56,6 +56,18 @@ Comprehensive multi-agent accessibility audit of user-facing code. Supports **we
 - **Quick wins** section identifying the top 5 highest-impact, lowest-effort fixes
 - **Report** written to `paad/a11y-reviews/`
 
+### `/paad:alignment [files...]`
+
+Checks that requirements, designs, and implementation plans are aligned. Finds coverage gaps in both directions — unaddressed requirements and out-of-scope tasks — then rewrites all tasks in TDD red/green/refactor format.
+
+- **Arguments:** `/paad:alignment` (auto-detect) or `/paad:alignment requirements.md plan.md` (specific files) or `/paad:alignment docs/specs/ docs/plans/` (directories)
+- **Auto-detection** — scans `.kiro/`, `specs/` (spec-kit), `docs/plans/`, `docs/specs/`, and common filenames; classifies documents as intent (requirements) vs action (tasks)
+- **Source control reality check** — scans recent git history for conflicts with what the documents assume
+- **3 alignment checks**: requirements coverage, scope compliance, design alignment (if design docs exist)
+- **Dependency-ordered issues** — root causes (missing requirements) before symptoms (missing tasks), one at a time
+- **Mandatory TDD rewrite** — once aligned, all tasks are rewritten in red/green/refactor format for better implementation outcomes
+- **Flexible output** — update documents in-place or write a separate report to `paad/alignment-reviews/`
+
 ### `/paad:agentic-review [base-branch] [path]`
 
 Multi-agent bug-hunting review of the current branch against a base branch. Dispatches specialist agents in parallel, verifies findings to filter false positives, ranks by severity, and produces a persistent report.
@@ -100,7 +112,7 @@ Test the plugin locally without installing:
 claude --plugin-dir ./plugins/paad
 ```
 
-Then invoke skills with `/paad:a11y`, `/paad:agentic-review`, `/paad:architecture`, `/paad:pushback`, etc.
+Then invoke skills with `/paad:a11y`, `/paad:alignment`, `/paad:agentic-review`, `/paad:architecture`, `/paad:pushback`, etc.
 
 After making changes, run `/reload-plugins` inside Claude Code to pick up updates without restarting.
 
