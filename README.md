@@ -19,6 +19,19 @@ PAAD is a [Claude Code plugin](https://code.claude.com/docs/en/plugin-marketplac
 
 Also, while this methodology has served me well, **it eats tokens like popcorn at a horror movie**. I'm not aiming for quantity, I'm aiming for quality.
 
+## Workflow
+
+1. Create your spec, design doc, or implementation plan as usual.
+2. Before you start building, run `/paad:pushback` to get a critical review of your spec.
+3. As you build, run `/paad:alignment` to check that your implementation plan matches your requirements and design.
+4. When you have a working branch, run `/paad:agentic-review` to catch bugs, security holes, and integration problems before merging.
+
+Also ...
+
+1. Periodically run `/paad:agentic-architecture` to catch structural problems before they compound.
+2. For UI changes, run `/paad:a11y` to catch accessibility barriers before they go live.
+3. For small fixes and quick changes, use `/paad:vibe` to get TDD guardrails and contextual suggestions.
+
 ## Installation
 
 ### Add the marketplace
