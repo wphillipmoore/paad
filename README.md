@@ -1,5 +1,9 @@
 # PAAD — Slaying the Four Horsemen of the AIpocalypse
 
+<p align="center">
+  <img src="images/paad.png" alt="PAAD — Slaying the AIpocalypse: Pushback, Alignment, Architecture, Degradation" width="600">
+</p>
+
 Most AI coding assistants have the same four problems. **PAAD** addresses each one.
 
 | Problem | What goes wrong | Status |
