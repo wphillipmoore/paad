@@ -19,10 +19,10 @@ paad/
 │           │   └── SKILL.md       ← /paad:a11y skill
 │           ├── agentic-review/
 │           │   └── SKILL.md       ← /paad:agentic-review skill
+│           ├── agentic-architecture/
+│           │   └── SKILL.md       ← /paad:agentic-architecture skill
 │           ├── alignment/
 │           │   └── SKILL.md       ← /paad:alignment skill
-│           ├── architecture/
-│           │   └── SKILL.md       ← /paad:architecture skill
 │           ├── pushback/
 │           │   └── SKILL.md       ← /paad:pushback skill
 │           └── vibe/
@@ -35,7 +35,7 @@ paad/
 
 - **Marketplace name**: `paad`
 - **Plugin name**: `paad` (so all skills are invoked as `/paad:<skill-name>`)
-- **Skill naming**: skill folder names become the suffix after `paad:` — e.g., `skills/architecture/` → `/paad:architecture`
+- **Skill naming**: skill folder names become the suffix after `paad:` — e.g., `skills/agentic-architecture/` → `/paad:agentic-architecture`
 - **Versioning**: both `marketplace.json` and `plugin.json` use semver. Bump the plugin version in `plugin.json` (it takes precedence). Keep `marketplace.json` version in sync.
 - **Validation**: run `claude plugin validate .` (marketplace) and `claude plugin validate ./plugins/paad` (plugin) before committing
 

@@ -68,6 +68,19 @@ Checks that requirements, designs, and implementation plans are aligned. Finds c
 - **Mandatory TDD rewrite** — once aligned, all tasks are rewritten in red/green/refactor format for better implementation outcomes
 - **Flexible output** — update documents in-place or write a separate report to `paad/alignment-reviews/`
 
+### `/paad:agentic-architecture [path...]`
+
+Multi-agent architecture analysis of the current codebase. Dispatches specialist agents in parallel, verifies findings, and produces a balanced report of strengths and flaws with evidence. Diagnosis only — does not propose fixes.
+
+- **Arguments:** `/paad:agentic-architecture` (full repo) or `/paad:agentic-architecture src/` (scoped) or `/paad:agentic-architecture packages/api/ packages/shared/` (multiple directories)
+- **5 specialist agents** run in parallel: Structure & Boundaries, Coupling & Dependencies, Integration & Data, Error Handling & Observability, Security & Code Quality
+- **Verification phase** filters false positives — confirms findings by reading actual code and checking git history
+- **14 strength categories** (modular boundaries, cohesion, coupling, error handling, observability, security, testability, and more)
+- **34 flaw/risk types** (god objects, tight coupling, circular dependencies, leaky abstractions, dead code, missing tests, hard-coded secrets, and more)
+- **Coverage checklist** ensuring every category is assessed
+- **Hotspots** identifying the top files/directories to review
+- **Report** written to `paad/architecture-reviews/`
+
 ### `/paad:agentic-review [base-branch] [path]`
 
 Multi-agent bug-hunting review of the current branch against a base branch. Dispatches specialist agents in parallel, verifies findings to filter false positives, ranks by severity, and produces a persistent report.
@@ -80,19 +93,6 @@ Multi-agent bug-hunting review of the current branch against a base branch. Disp
 - **Report** written to `paad/code-reviews/`
 
 Requires a feature branch (not main/master) with committed changes.
-
-### `/paad:architecture [path...]`
-
-Comprehensive architecture analysis of the current codebase. Diagnosis only — identifies strengths and problems with evidence but does not propose fixes.
-
-- **Arguments:** `/paad:architecture` (full repo) or `/paad:architecture src/` (scoped) or `/paad:architecture packages/api/ packages/shared/` (multiple directories)
-- **14 strength categories** (modular boundaries, cohesion, coupling, error handling, observability, security, testability, and more)
-- **34 flaw/risk types** (god objects, tight coupling, circular dependencies, leaky abstractions, dead code, missing tests, hard-coded secrets, and more)
-- **Evidence-based findings** with file paths, line ranges, and code excerpts
-- **Coverage checklist** ensuring nothing is missed
-- **Hotspots** identifying the top files/directories to review
-- **Next questions** to guide follow-up investigation
-- **Report** written to `paad/architecture-reviews/`
 
 ### `/paad:pushback [spec-file]`
 
@@ -125,7 +125,7 @@ Test the plugin locally without installing:
 claude --plugin-dir ./plugins/paad
 ```
 
-Then invoke skills with `/paad:a11y`, `/paad:alignment`, `/paad:agentic-review`, `/paad:architecture`, `/paad:pushback`, `/paad:vibe`, etc.
+Then invoke skills with `/paad:a11y`, `/paad:alignment`, `/paad:agentic-review`, `/paad:agentic-architecture`, `/paad:pushback`, `/paad:vibe`, etc.
 
 After making changes, run `/reload-plugins` inside Claude Code to pick up updates without restarting.
 
