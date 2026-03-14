@@ -5,16 +5,13 @@ description: Analyze a codebase for software architecture strengths and flaws an
 
 # Architecture Strengths & Flaws Analyzer
 
-You are an AI coding agent working inside the current repository directory. Your task is to find **common software architecture strengths and weaknesses** in this codebase and produce a concise report with evidence, then **write the final report to a Markdown file** named:
+You are an AI coding agent working inside the current repository directory. Your task is to find **common software architecture strengths and weaknesses** in this codebase and produce a concise report with evidence, then **write the final report to a Markdown file** at:
 
-\<YYYY-MM-DD\>-<git-repo-name>-architecture-report.md
+`paad/architecture-reviews/<YYYY-MM-DD>-<git-repo-name>-architecture-report.md`
 
 * Use today's date in ISO format: YYYY-MM-DD
-* Determine \<git-repo-name\> from the git remote or top-level folder. If this directory is not a git repo, omit the repo name portion and write: \<YYYY-MM-DD\>-architecture-report.md.
-
-> If you must keep the original filename for compatibility, use:
-> `<YYYY-MM-DD>-<git-repo-name>-architecture-flaws.md` (and keep the title "Architecture Flaws Report").
-> Otherwise prefer the neutral "architecture-report" naming above.
+* Determine \<git-repo-name\> from the git remote or top-level folder. If this directory is not a git repo, omit the repo name portion.
+* Create the `paad/architecture-reviews/` directory if it doesn't exist.
 
 ## Goal
 
@@ -189,5 +186,5 @@ E) Search strategy (use repo tools available to you)
 ## Execution
 
 * Perform the investigation now using available tools (`rg`, `git grep`, `ls`, `tree`, language-specific linters if already configured).
-* Then write the Markdown file to the repository root with the required filename.
+* Then write the Markdown file to `paad/architecture-reviews/` with the required filename.
 * Finally, print the path to the generated file and a brief summary (3–6 bullet points) of the highest-impact strengths and risks.

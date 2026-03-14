@@ -103,9 +103,9 @@ After all specialists complete, dispatch a single **Verifier** agent with all fi
 
 ## Phase 4: Report
 
-Write verified findings to `docs/reviews/<branch>-<YYYY-MM-DD-HH-MM-SS>-<short-sha>.md`.
+Write verified findings to `paad/code-reviews/<branch>-<YYYY-MM-DD-HH-MM-SS>-<short-sha>.md`.
 
-Create the `docs/reviews/` directory if it doesn't exist.
+Create the `paad/code-reviews/` directory if it doesn't exist.
 
 **Report template:**
 
