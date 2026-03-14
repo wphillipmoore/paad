@@ -9,6 +9,16 @@ Multi-agent bug-hunting review of the current branch against main. Dispatches sp
 
 **This is a technique skill.** Follow the phases in order. Do not skip verification.
 
+## Arguments
+
+`/paad:agentic-review` accepts optional `$ARGUMENTS`:
+
+- `/paad:agentic-review` — review all changes on the current branch against `main`
+- `/paad:agentic-review develop` — review against a different base branch (e.g., `develop` instead of `main`)
+- `/paad:agentic-review main src/auth/` — review against `main`, but only for files under `src/auth/`
+
+When a base branch is provided, use it instead of `main` in all `git diff` commands. When a path is provided, filter the diff and manifest to only include files within that scope.
+
 ## Pre-flight Checks
 
 ```dot
@@ -39,8 +49,8 @@ digraph preflight {
 
 Run these commands and collect results:
 
-1. `git diff --stat main...HEAD` — files and line counts
-2. `git diff main...HEAD` — full diff content
+1. `git diff --stat <base>...HEAD` — files and line counts
+2. `git diff <base>...HEAD` — full diff content
 3. Classify diff size:
    - **Small:** <50 lines changed
    - **Medium:** 50-500 lines changed

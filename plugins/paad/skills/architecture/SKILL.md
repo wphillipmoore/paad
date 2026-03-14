@@ -5,6 +5,18 @@ description: Analyze a codebase for software architecture strengths and flaws an
 
 # Architecture Strengths & Flaws Analyzer
 
+## Arguments
+
+`/paad:architecture` accepts optional `$ARGUMENTS`:
+
+- `/paad:architecture` — analyze the entire repository
+- `/paad:architecture src/` — scope the analysis to a specific directory (useful for monorepos or analyzing one service)
+- `/paad:architecture packages/api/ packages/shared/` — analyze multiple directories together
+
+When a path is provided, focus the analysis on that scope but still note dependencies on code outside the scope.
+
+## Overview
+
 You are an AI coding agent working inside the current repository directory. Your task is to find **common software architecture strengths and weaknesses** in this codebase and produce a concise report with evidence, then **write the final report to a Markdown file** at:
 
 `paad/architecture-reviews/<YYYY-MM-DD>-<git-repo-name>-architecture-report.md`
