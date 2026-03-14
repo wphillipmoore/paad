@@ -1,0 +1,27 @@
+{
+  "name": "paad",
+  "owner": {
+    "name": "Curtis \"Ovid\" Poe",
+    "email": "curtis.poe@gmail.com"
+  },
+  "metadata": {
+    "description": "Ovid's plugin marketplace for Claude Code — practical tools for software architecture, code quality, and development workflows.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "paad",
+      "source": "./plugins/paad",
+      "description": "Architecture analysis, code quality, and development workflow skills by Ovid",
+      "version": "1.0.0",
+      "author": {
+        "name": "Curtis \"Ovid\" Poe"
+      },
+      "homepage": "https://github.com/Ovid/paad",
+      "repository": "https://github.com/Ovid/paad",
+      "license": "MIT",
+      "keywords": ["architecture", "code-quality", "analysis"],
+      "category": "code-quality"
+    }
+  ]
+}
