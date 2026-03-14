@@ -15,6 +15,8 @@ paad/
 │       ├── .claude-plugin/
 │       │   └── plugin.json        ← plugin manifest (name, version, metadata)
 │       └── skills/
+│           ├── a11y/
+│           │   └── SKILL.md       ← /paad:a11y skill
 │           ├── agentic-review/
 │           │   └── SKILL.md       ← /paad:agentic-review skill
 │           └── architecture/
