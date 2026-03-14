@@ -23,8 +23,10 @@ paad/
 │           │   └── SKILL.md       ← /paad:alignment skill
 │           ├── architecture/
 │           │   └── SKILL.md       ← /paad:architecture skill
-│           └── pushback/
-│               └── SKILL.md       ← /paad:pushback skill
+│           ├── pushback/
+│           │   └── SKILL.md       ← /paad:pushback skill
+│           └── vibe/
+│               └── SKILL.md       ← /paad:vibe skill
 ├── CLAUDE.md                      ← this file
 └── README.md
 ```

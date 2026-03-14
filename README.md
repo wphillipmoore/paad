@@ -104,6 +104,19 @@ Critically reviews a spec, PRD, requirements document, or design plan before wor
 - **Severity-ordered, one issue at a time** — most impactful issues first, with concrete options and recommendations; stop when you've had enough
 - **Flexible output** — update the spec in-place or write a separate report to `paad/pushback-reviews/`
 
+### `/paad:vibe [task description]`
+
+Safe vibe coding with TDD guardrails. For small fixes and quick changes where you want speed but not recklessness.
+
+- **Arguments:** `/paad:vibe fix the login timeout` (task inline) or `/paad:vibe` (ask what needs fixing)
+- **Pre-flight checks** before writing any code:
+  - Test infrastructure exists? If not, warn and ask how to proceed
+  - Scope check — if 4+ files or cross-module, warn this may not be a vibe task
+  - Architecture smell — if a simple task requires lots of work, investigate deeper issues first
+  - Reusable components — search the codebase for existing utilities before building from scratch
+- **Mandatory red/green/refactor** — write a failing test, write minimal code to pass, then refactor. If the test passes or fails unexpectedly, stop and ask
+- **Post-fix summary** with contextual follow-up suggestions (agentic-review for security-sensitive changes, a11y for UI changes, architecture if the fix was harder than expected)
+
 ## Local Development
 
 Test the plugin locally without installing:
@@ -112,7 +125,7 @@ Test the plugin locally without installing:
 claude --plugin-dir ./plugins/paad
 ```
 
-Then invoke skills with `/paad:a11y`, `/paad:alignment`, `/paad:agentic-review`, `/paad:architecture`, `/paad:pushback`, etc.
+Then invoke skills with `/paad:a11y`, `/paad:alignment`, `/paad:agentic-review`, `/paad:architecture`, `/paad:pushback`, `/paad:vibe`, etc.
 
 After making changes, run `/reload-plugins` inside Claude Code to pick up updates without restarting.
 
