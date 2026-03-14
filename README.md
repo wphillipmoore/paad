@@ -8,16 +8,16 @@ Most AI coding assistants have the same four problems. **PAAD** addresses each o
 
 | Problem | What goes wrong | Status |
 |---------|----------------|--------|
-| **P**ushback | AI agrees with whatever you say. It doesn't challenge bad ideas, ask clarifying questions, or tell you your approach has problems. | Largely solved |
-| **A**lignment | AI "understands" the assignment — then implements most of it, plus things you didn't ask for. Scope creep from the machine. | Largely solved |
-| **A**rchitecture | When a feature is hard to implement because the architecture is wrong, AI forces the feature through instead of fixing the foundation. | Partially solved |
-| **D**egradation | As software grows, complexity creates edge cases — security holes, subtle logic bugs, weird interactions. AI can't see these patterns. | Partially solved |
+| **P**ushback | AI is a smarmy little git. 'Great idea!' it says, as you walk off a cliff together. | Largely solved |
+| **A**lignment | AI hears "add a button" and delivers a button, a modal, a notification system, and a config page. The button doesn't work. | Largely solved |
+| **A**rchitecture | Your architecture is a house of cards. AI's solution? More cards. Taller. | Partially solved |
+| **D**egradation | Death by a thousand commits. Each change is fine. Together they're a security hole, a race condition, and a mystery bug that only happens on Tuesdays. | Partially solved |
 
 PAAD is a [Claude Code plugin](https://code.claude.com/docs/en/plugin-marketplaces) that gives your AI assistant the tools to catch these problems before they compound.
 
 **WARNING**: PAAD is brutally honest. It will tell you when your spec is flawed, your plan is misaligned, your architecture has problems, or your code has bugs. If you don't want to hear that, don't install PAAD.
 
-Also, this methodology has served me well, but it eats tokens like popcorn at a horror movie.
+Also, while this methodology has served me well, **it eats tokens like popcorn at a horror movie**. I'm not aiming for quantity, I'm aiming for quality.
 
 ## Installation
 
