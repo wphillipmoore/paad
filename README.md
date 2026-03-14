@@ -8,7 +8,7 @@ Most AI coding assistants have the same four problems. **PAAD** addresses each o
 
 | Problem | What goes wrong | Status |
 |---------|----------------|--------|
-| **P**ushback | AI is a smarmy little git. 'Great idea!' it says, as you walk off a cliff together. | Largely solved |
+| **P**ushback | AI is a smarmy little git. Push back? No. Push to production? Absolutely. Push the consequences to Future You? Every time. | Largely solved |
 | **A**lignment | AI hears "add a button" and delivers a button, a modal, a notification system, and a config page. The button doesn't work. | Largely solved |
 | **A**rchitecture | Your architecture is a house of cards. AI's solution? More cards. Taller. | Partially solved |
 | **D**egradation | Death by a thousand commits. Each change is fine. Together they're a security hole, a race condition, and a mystery bug that only happens on Tuesdays. | Partially solved |
