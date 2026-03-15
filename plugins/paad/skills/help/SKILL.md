@@ -30,9 +30,9 @@ paad — impractical tools for software architecture, code quality, and developm
 
 Available skills:
 
-  /paad:a11y [path]                          Accessibility audit (web, mobile, desktop, CLI, games)
+  /paad:agentic-a11y [path]                  Accessibility audit (web, mobile, desktop, CLI, games)
   /paad:agentic-architecture [path...]       Multi-agent architecture analysis (strengths & flaws)
-  /paad:agentic-review [base-branch] [path]  Multi-agent code review (bug hunting)
+  /paad:agentic-review [base-branch] [path]  Multi-agent code review of current branch (bug hunting)
   /paad:alignment [files...]                 Requirements-to-tasks alignment + TDD rewrite
   /paad:pushback [spec-file]                 Spec/PRD critic (finds issues before you build)
   /paad:vibe [task description]              Safe vibe coding with TDD guardrails
@@ -44,10 +44,10 @@ Run /paad:help <skill-name> for detailed help on a specific skill.
 
 ## Detailed Help (per skill)
 
-### a11y
+### agentic-a11y
 
 ```
-/paad:a11y [path]
+/paad:agentic-a11y [path]
 
 Comprehensive multi-agent accessibility audit of user-facing code.
 
@@ -56,9 +56,9 @@ Target:   WCAG 2.2 AA baseline, AAA flagged as bonus recommendations.
 Output:   paad/a11y-reviews/
 
 Arguments:
-  /paad:a11y                    Audit all user-facing code in the repo
-  /paad:a11y src/components/    Scope to a directory
-  /paad:a11y Modal.tsx          Scope to a file
+  /paad:agentic-a11y                    Audit all user-facing code in the repo
+  /paad:agentic-a11y src/components/    Scope to a directory
+  /paad:agentic-a11y Modal.tsx          Scope to a file
 
 What it does:
   1. Detects the platform(s) automatically
@@ -202,17 +202,22 @@ Auto-detection checks: conversation history first, then common locations
 What it does:
   1. Reality check: scans git history for conflicts with what the
      spec assumes (presented upfront — showstoppers first)
-  2. Analyzes the spec across 6 categories:
+  2. Scope shape check:
+     - Feature cohesion: flags unrelated features bundled together
+       (things that would be separate PRs)
+     - Spec size: flags oversized specs, suggests splits only when
+       each piece delivers independent value
+  3. Analyzes the spec across 6 categories:
      - Contradictions
      - Feasibility (given the current codebase)
      - Scope imbalance
      - Omissions
      - Ambiguity
      - Security concerns
-  3. Presents issues one at a time, most impactful first
-  4. For each: concrete options from best to worst, with recommendation
-  5. Stop when you say "good enough"
-  6. Updates the spec or writes a separate report
+  4. Presents issues one at a time, most impactful first
+  5. For each: concrete options from best to worst, with recommendation
+  6. Stop when you say "good enough"
+  7. Updates the spec or writes a separate report
 
 Works within an existing conversation — no fresh session needed.
 ```
@@ -241,7 +246,7 @@ What it does:
      - REFACTOR: clean up duplication, hard-coded values, patterns
   4. Post-fix summary with contextual follow-up suggestions:
      - Security-sensitive code → /paad:agentic-review
-     - UI changes → /paad:a11y
+     - UI changes → /paad:agentic-a11y
      - Harder than expected → /paad:agentic-architecture
 
 No fresh session needed — this is a lightweight workflow skill.
