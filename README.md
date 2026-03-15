@@ -33,7 +33,7 @@ I often run `/paad:pushback` and `/paad:alignment` more than once to catch issue
 Also ...
 
 1. Periodically run `/paad:agentic-architecture` to catch structural problems before they compound.
-2. For UI changes, run `/paad:a11y` to catch accessibility barriers before they go live.
+2. For UI changes, run `/paad:agentic-a11y` to catch accessibility barriers before they go live.
 3. For small fixes and quick changes, use `/paad:vibe` to get TDD guardrails and contextual suggestions.
 
 ## Installation
@@ -81,6 +81,7 @@ AI won't tell you your spec has problems. This skill does — critically reviewi
 
 - **Arguments:** `/paad:pushback path/to/spec.md` (specific file) or `/paad:pushback` (auto-detect from conversation history or common file locations)
 - **Source control reality check** — scans recent git history for commits that conflict with what the spec assumes, presented upfront before other analysis
+- **Scope shape check** — flags unrelated features bundled together (things that would be separate PRs) and oversized specs; suggests splits only when each piece delivers independent value
 - **6 analysis categories**: contradictions, feasibility, scope imbalance, omissions, ambiguity, security concerns
 - **Severity-ordered, one issue at a time** — most impactful issues first, with concrete options and recommendations; stop when you're fed up with being told your spec has problems
 - **Flexible output** — update the spec in-place or write a separate report to `paad/pushback-reviews/`
@@ -135,13 +136,13 @@ As code grows, bugs hide. This skill hunts them — five specialist agents revie
 
 Requires a feature branch (not main/master) with committed changes.
 
-#### `/paad:a11y [path]`
+#### `/paad:agentic-a11y [path]`
 
 Accessibility barriers are a form of degradation that's invisible to most developers. This skill catches them — running five specialist agents across your codebase to find real barriers organized by who they affect.
 
 Supports **web, iOS, Android, React Native, Flutter, desktop, CLI, and games**. Evaluates against WCAG 2.2 AA (applied via WCAG2ICT for non-web platforms, with AAA noted as bonus recommendations).
 
-- **Arguments:** `/paad:a11y` (full repo) or `/paad:a11y src/components/` (scoped to a directory or file)
+- **Arguments:** `/paad:agentic-a11y` (full repo) or `/paad:agentic-a11y src/components/` (scoped to a directory or file)
 - **Automatic platform detection** — identifies the project's platform(s) and adapts all checks accordingly
 - **5 specialist agents** run in parallel, each focused on a different disability category:
   - **Screen Reader & Assistive Tech** — platform-appropriate semantics (ARIA for web, UIAccessibility for iOS, AccessibilityNodeInfo for Android, Semantics for Flutter, etc.)
