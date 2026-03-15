@@ -21,10 +21,14 @@ Also, while this methodology has served me well, **it eats tokens like popcorn a
 
 ## Workflow
 
+First, you might forget commands. That's OK. Just run `/paad:help` to see all available skills and their usage.
+
 1. Create your spec, design doc, or implementation plan as usual.
 2. Before you start building, run `/paad:pushback` to get a critical review of your spec.
 3. As you build, run `/paad:alignment` to check that your implementation plan matches your requirements and design.
 4. When you have a working branch, run `/paad:agentic-review` to catch bugs, security holes, and integration problems before merging.
+
+I often run `/paad:pushback` and `/paad:alignment` more than once to catch issues the first run (or introduced).
 
 Also ...
 
