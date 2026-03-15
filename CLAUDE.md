@@ -25,6 +25,8 @@ paad/
 │           │   └── SKILL.md       ← /paad:alignment skill
 │           ├── help/
 │           │   └── SKILL.md       ← /paad:help skill
+│           ├── makefile/
+│           │   └── SKILL.md       ← /paad:help skill
 │           ├── pushback/
 │           │   └── SKILL.md       ← /paad:pushback skill
 │           └── vibe/

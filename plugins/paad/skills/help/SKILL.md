@@ -34,6 +34,7 @@ Available skills:
   /paad:agentic-architecture [path...]       Multi-agent architecture analysis (strengths & flaws)
   /paad:agentic-review [base-branch] [path]  Multi-agent code review of current branch (bug hunting)
   /paad:alignment [files...]                 Requirements-to-tasks alignment + TDD rewrite
+  /paad:makefile                                 Create or update a Makefile with standard targets
   /paad:pushback [spec-file]                 Spec/PRD critic (finds issues before you build)
   /paad:vibe [task description]              Safe vibe coding with TDD guardrails
 
@@ -181,6 +182,42 @@ What it does:
   6. Updates documents or writes a separate report
 
 Works within an existing conversation — no fresh session needed.
+```
+
+### makefile
+
+```
+/paad:makefile
+
+Creates or updates a project Makefile with standard targets.
+
+Arguments:
+  /paad:makefile    Create a new Makefile or update an existing one
+
+What it does:
+  1. Detects your stack (reads CLAUDE.md, README, package.json, etc.)
+  2. Checks if a Makefile already exists
+  3. Creating: builds from scratch with all required targets
+  4. Updating: adds missing targets; asks before changing existing ones
+
+Required targets (always included):
+  help     List all targets with descriptions
+  all      Full CI pass (lint + format + test)
+  test     Run test suite
+  cover    One-shot coverage report
+  lint     Lint (with autofix if available)
+  format   Format code
+
+Extra targets (build, dev, preview, etc.) added only if the project
+supports them.
+
+Key rules:
+  - Never modifies an existing target without explicit approval
+  - Forces one-shot mode for coverage (no watch-mode hanging)
+  - Uses self-documenting pattern (## comments + grep/awk help target)
+  - Balanced test output: concise on success, detailed on failure
+
+No fresh session needed — this is a lightweight workflow skill.
 ```
 
 ### pushback

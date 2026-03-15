@@ -161,6 +161,10 @@ Supports **web, iOS, Android, React Native, Flutter, desktop, CLI, and games**. 
 
 ### Workflow
 
+#### `/paad:makefile`
+
+Creates or updates a project Makefile with standard targets (`help`, `all`, `test`, `cover`, `lint`, `format`). Detects your stack automatically and never modifies an existing target without asking first.
+
 #### `/paad:vibe [task description]`
 
 Speed without recklessness. Safe vibe coding with TDD guardrails for small fixes and quick changes.
