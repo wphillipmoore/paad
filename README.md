@@ -1,7 +1,7 @@
 # PAAD — Slaying the Four Horsemen of the AIpocalypse
 
 <p align="center">
-  <img src="images/paad.png" alt="PAAD — Slaying the AIpocalypse: Pushback, Alignment, Architecture, Degradation" width="600">
+  <img src="images/paad.png" alt="PAAD — Slaying the Four Horsemen of the AIpocalypse: Pushback, Alignment, Architecture, Degradation" width="600">
 </p>
 
 Most AI coding assistants have the same four problems. **PAAD** addresses each one.
@@ -22,6 +22,10 @@ Also, while this methodology has served me well, **it eats tokens like popcorn a
 ## Workflow
 
 First, you might forget commands. That's OK. Just run `/paad:help` to see all available skills and their usage.
+
+Before I start working in any repo, I run `/paad:makefile` to set up a standard Makefile with targets for building, testing, linting, and formatting. This gives me a consistent interface for common tasks and encourages good habits. More importantly, the code coverage, linting, and formatting tools are critical to help PAAD generate production-quality code and catch issues early.
+
+Then I follow this general workflow:
 
 1. Create your spec, design doc, or implementation plan as usual.
 2. Before you start building, run `/paad:pushback` to get a critical review of your spec.
@@ -160,6 +164,10 @@ Supports **web, iOS, Android, React Native, Flutter, desktop, CLI, and games**. 
 ---
 
 ### Workflow
+
+#### `/paad:makefile`
+
+Creates or updates a project Makefile with standard targets (`help`, `all`, `test`, `cover`, `lint`, `format`). Detects your stack automatically and never modifies an existing target without asking first.
 
 #### `/paad:vibe [task description]`
 
