@@ -1,6 +1,6 @@
 ---
 name: pushback
-description: Push back on specs, PRDs, requirements, and design documents — finds contradictions, feasibility issues, scope imbalance, omissions, ambiguity, and security concerns, with source control reality checks
+description: Push back on specs, PRDs, requirements, and design documents — finds unrelated features, oversized scope, contradictions, feasibility issues, scope imbalance, omissions, ambiguity, and security concerns, with source control reality checks
 ---
 
 # Spec Pushback
@@ -35,6 +35,39 @@ Before analyzing the spec itself, check whether recent codebase changes conflict
 5. **If no conflicts found:** say "No conflicts with recent changes" and move on
 
 This phase surfaces showstoppers early. A spec that assumes deleted infrastructure is wrong before the analysis even starts.
+
+## Phase 1.5: Scope Shape
+
+Before digging into individual requirements, check whether the spec has structural problems that should be addressed first.
+
+### Check 1: Feature Cohesion
+
+Do the features in this spec serve different user goals or business objectives? If the spec bundles unrelated features — things that would naturally be separate PRs — flag it.
+
+For each group of unrelated features:
+- Identify the groups and what makes them unrelated (different user goals, different business objectives, different system concerns)
+- Recommend splitting into separate specs
+- Ask: "Do you want to split these out before I continue, or review as-is?"
+
+If the user splits, continue reviewing the remaining spec. If they choose to review as-is, proceed — but note it as a scope concern.
+
+### Check 2: Spec Size
+
+Use heuristic signals to assess whether the spec is too large to implement safely:
+- Many distinct features or requirements (roughly 8+)
+- Multiple unrelated system areas affected
+- Very long document
+- Estimated implementation would touch many modules across the codebase
+
+**If large AND a meaningful split exists** where each piece delivers independent value: suggest the split with a brief explanation of what each piece delivers on its own.
+
+**If large BUT the features are tightly interdependent:** flag the size and explain why splitting isn't practical — describe the interdependencies that make the features inseparable. The author knows it's big but also knows the bigness is inherent, not accidental.
+
+**If not large:** say nothing and move on to Phase 2.
+
+### Ordering
+
+Run cohesion before size. If unrelated features are found and the user agrees to split, the size problem may resolve itself.
 
 ## Phase 2: Spec Critique
 

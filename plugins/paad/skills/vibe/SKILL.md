@@ -120,5 +120,5 @@ After the fix is complete, provide a brief summary:
 Suggest paad skills when the change warrants it. Don't suggest follow-ups for trivial fixes.
 
 - If the change touched security-sensitive code (auth, permissions, input handling, secrets) → "Consider `/paad:agentic-review` before merging — this touched security-sensitive code."
-- If the change touched UI components → "Consider `/paad:a11y src/path/to/changed/files` to check accessibility."
+- If the change touched UI components → "Consider `/paad:agentic-a11y src/path/to/changed/files` to check accessibility."
 - If the change felt significantly harder than expected → "This was harder than it should have been. Consider `/paad:agentic-architecture` to investigate whether there are deeper structural issues."
