@@ -4,7 +4,7 @@
   <img src="images/paad.png" alt="PAAD — Slaying the Four Horsemen of the AIpocalypse: Pushback, Alignment, Architecture, Degradation" width="600">
 </p>
 
-Most AI coding assistants have the same four problems. **PAAD** addresses each one.
+Most AI coding assistants have the same four problems. **PAAD** addresses each one. See also, [this horrendously long explanation](https://curtispoe.org/articles/why-i-am-no-longer-reading-the-ais-code.html).
 
 | Problem | What goes wrong | Status |
 |---------|----------------|--------|
