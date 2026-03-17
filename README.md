@@ -13,7 +13,7 @@ Most AI coding assistants have the same four problems. **PAAD** addresses each o
 | **A**rchitecture | Your architecture is a house of cards. AI's solution? More cards. Taller. | Partially solved |
 | **D**egradation | Death by a thousand commits. Each change is fine. Together they're a security hole, a race condition, and a mystery bug that only happens on Tuesdays. | Partially solved |
 
-PAAD is a [Claude Code plugin](https://code.claude.com/docs/en/plugin-marketplaces) that gives your AI assistant the tools to catch these problems before they compound.
+PAAD is a system of AI agent skills—originally built as a [Claude Code plugin](https://code.claude.com/docs/en/plugin-marketplaces) that gives your assistant the tools to catch these problems before they compound. It now supports **Claude Code**, **Kiro**, and **Antigravity**.
 
 **WARNING**: PAAD is brutally honest. It will tell you when your spec is flawed, your plan is misaligned, your architecture has problems, or your code has bugs. If you don't want to hear that, don't install PAAD.
 
@@ -42,7 +42,9 @@ Also ...
 
 ## Installation
 
-### Add the marketplace
+### Claude Code
+
+#### Add the marketplace
 
 ```
 /plugin marketplace add Ovid/paad
@@ -70,6 +72,18 @@ Add to your project's `.claude/settings.json` so teammates are automatically pro
   }
 }
 ```
+
+### Kiro & Antigravity
+
+PAAD provides pre-converted versions of the skills for both Kiro and Antigravity.
+
+1. Create a `.kiro/skills/` and/or `.agent/skills/` directory in your project root.
+2. Copy the desired skills from the `kiro_and_antigravity/skills/` directory in this repo.
+3. **Note**: Antigravity skills function as wrappers. You MUST also copy the corresponding Kiro skill to your project's `.kiro/skills/` directory, as the Antigravity skill references it.
+
+### Using Skills with Kiro & Antigravity
+
+In Kiro and Antigravity, skills are automatically recognized by your assistant. You don't need a specific prefix; simply ask your assistant to perform the task (e.g., "Run a pushback review on this spec" or "Analyze the architecture of this module"). The assistant will follow the checklists and procedures defined in the skill files.
 
 ## Available Skills
 
