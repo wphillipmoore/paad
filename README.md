@@ -13,7 +13,7 @@ Most AI coding assistants have the same four problems. **PAAD** addresses each o
 | **A**rchitecture | Your architecture is a house of cards. AI's solution? More cards. Taller. | Partially solved |
 | **D**egradation | Death by a thousand commits. Each change is fine. Together they're a security hole, a race condition, and a mystery bug that only happens on Tuesdays. | Partially solved |
 
-PAAD is a system of AI agent skills—originally built as a Claude Code plugin—that gives your assistant the tools to catch these problems before they compound. It now supports **Claude Code**, **Kiro**, and **Antigravity**.
+PAAD is a system of AI agent skills—originally built as a [Claude Code plugin](https://code.claude.com/docs/en/plugin-marketplaces) that gives your assistant the tools to catch these problems before they compound. It now supports **Claude Code**, **Kiro**, and **Antigravity**.
 
 **WARNING**: PAAD is brutally honest. It will tell you when your spec is flawed, your plan is misaligned, your architecture has problems, or your code has bugs. If you don't want to hear that, don't install PAAD.
 
