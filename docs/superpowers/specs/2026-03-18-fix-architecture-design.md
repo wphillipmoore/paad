@@ -34,6 +34,8 @@ A new technique skill that takes an existing `/paad:agentic-architecture` report
    - If >20 commits or report date >14 days old, warn: "This report was generated N commits / N days ago. Some findings may be outdated. I'll validate each flaw before fixing, but consider re-running `/paad:agentic-architecture` for a fresh baseline."
    - Parse the SHA from the report's `**Commit:** <full-sha>` header field.
    - Ask explicitly: "Proceed anyway? (yes / no / re-run `/paad:agentic-architecture` first)"
+5. **Test infrastructure** — check whether the project has a test framework, runner, and conventions (e.g., a `test/` or `__tests__/` directory, a test script in `package.json`, pytest config, etc.). If no test infrastructure exists, warn: "This project has no test infrastructure. Fixes without tests are high-risk. Want to set up a test framework first, proceed without tests, or stop?" Wait for the developer's decision before continuing.
+6. **Baseline test run** — run the existing test suite to establish a green baseline. If tests are already failing, warn the developer: "N tests are currently failing before any changes. This means I can't reliably attribute test failures to my fixes. Proceed anyway, or fix the failing tests first?" Record which tests are failing so step 2e can distinguish pre-existing failures from newly introduced ones.
 
 ## Phase 1: Developer Conversation
 
@@ -70,6 +72,8 @@ Then ask:
 > 3. Specific flaws (pick by F-ID)
 > 4. Something else"
 
+If the developer picks "quick wins," do a lightweight scan of the affected code before presenting candidates — check file size, number of references, whether the fix is localized or cross-cutting. Present the ones that look genuinely simple with a caveat: "Based on a quick scan, these look straightforward — but I'll verify each one before fixing."
+
 Based on the developer's answer and team context, recommend a batch size and let them select specific flaws.
 
 If no unfixed flaws remain (all are marked Fixed or Won't Fix), congratulate the developer and suggest re-running `/paad:agentic-architecture` for a fresh analysis to find any new issues.
@@ -77,7 +81,7 @@ If no unfixed flaws remain (all are marked Fixed or Won't Fix), congratulate the
 ### Step 4: Plan Confirmation
 
 Summarize the full plan:
-- Selected flaws in fix order
+- Selected flaws in fix order (ordered by: dependencies first — flaws that unblock others; then by impact — High before Medium before Low; then by complexity — simpler first within the same impact level. The developer can override this order.)
 - Known dependencies between them
 - Testing approach considerations
 - Batch size
@@ -139,9 +143,12 @@ Follow red/green/refactor:
 If tests fail after the fix:
 
 1. Analyze *which* tests failed and *why*
-2. **Internal unit tests breaking because structure changed** → expected during refactoring, propose updating them
-3. **External/integration tests breaking** → red flag, discuss with developer whether to fix forward or revert
-4. Developer decides how to proceed
+2. Cross-reference against the pre-flight baseline — if a test was already failing before the session, it's not caused by this fix
+3. **Internal unit tests breaking because structure changed** → expected during refactoring, propose updating them
+4. **External/integration tests breaking** → red flag, discuss with developer whether to fix forward or revert
+5. Developer decides how to proceed
+
+After the fix passes, do a brief sanity check: does the change introduce any obvious new architectural issues (e.g., splitting a god object but creating tight coupling between the new modules)? If so, flag it to the developer. This is not a full re-analysis — just a common-sense review of the code just written.
 
 ### 2f. Commit
 
@@ -181,7 +188,7 @@ If status fields don't exist on the entry (report was generated before this skil
 
 ### 2h. Check Flaw Dependencies
 
-Before moving to the next flaw, check if the fix just applied addresses or affects other flaws in the batch:
+Before moving to the next flaw, check if the fix just applied addresses or affects other flaws in the report (not just the current batch — a fix might resolve flaws the developer didn't select):
 
 > "Fixing F-03 appears to have also resolved F-07 (low cohesion). Let me verify..."
 
