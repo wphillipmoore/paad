@@ -1,0 +1,225 @@
+# Design: `/paad:fix-architecture` Skill
+
+**Date:** 2026-03-18
+**Author:** Curtis "Ovid" Poe + Claude
+**Status:** Draft
+
+## Summary
+
+A new technique skill that takes an existing `/paad:agentic-architecture` report and guides the developer through fixing identified architectural flaws. Works iteratively — each session fixes a batch of flaws, updates the report with status tracking, and the skill can be re-run in fresh sessions to continue.
+
+## Motivation
+
+`/paad:agentic-architecture` is diagnosis only — it identifies strengths and flaws but explicitly does not propose fixes. This creates a gap: the developer has a detailed report but no structured workflow for acting on it. `/paad:fix-architecture` closes that gap with a deliberate, test-first, developer-in-the-loop fix process.
+
+## Skill Identity
+
+- **Name:** `fix-architecture`
+- **Invocation:** `/paad:fix-architecture [path/to/report.md]`
+- **Type:** Technique skill (fresh session required)
+- **Folder:** `plugins/paad/skills/fix-architecture/SKILL.md`
+
+### Arguments
+
+- `/paad:fix-architecture` — finds the most recent report in `paad/architecture-reviews/` by date prefix
+- `/paad:fix-architecture path/to/report.md` — uses a specific report
+
+## Pre-flight Checks
+
+1. **Context window** — if conversation has substantive history beyond invoking this skill, recommend a fresh session and stop.
+2. **Branch protection** — refuse to operate on the default branch (main/master/trunk). Detect via `git remote show origin` for HEAD branch, falling back to name matching. The developer must be on a feature branch.
+3. **Report exists** — locate the report from `$ARGUMENTS` or find the most recent in `paad/architecture-reviews/`. If none found, tell the developer to run `/paad:agentic-architecture` first and stop.
+4. **Report staleness** — compare the report's `**Commit:**` SHA and date against current state:
+   - Count commits since report: `git rev-list --count <report-sha>..HEAD`
+   - If >20 commits or report date >14 days old, warn: "This report was generated N commits / N days ago. Some findings may be outdated. I'll validate each flaw before fixing, but consider re-running `/paad:agentic-architecture` for a fresh baseline."
+   - Developer can override and proceed.
+
+## Phase 1: Developer Conversation
+
+A setup conversation before any code is touched. Four steps, asked sequentially:
+
+### Step 1: Team Context
+
+> "Are you working solo or on a team? This affects how many fixes I'll recommend per session."
+
+- **Solo** → recommend larger batches, note that conflicts are unlikely
+- **Team** → recommend 1-2 fixes per session, warn about conflict risk with other developers' work
+
+### Step 2: Commit Preference
+
+> "When I complete a fix, should I commit automatically, or would you prefer to review and commit yourself?"
+
+Two modes:
+- **Auto-commit** — skill commits after each successful fix (one commit per fix, including tests and report update)
+- **Manual commit** — skill leaves changes staged, tells the developer what was changed
+
+### Step 3: Flaw Triage
+
+Present flaws from the report, excluding any already marked as Fixed or Won't Fix. Group by impact level (High / Medium / Low). Before presenting, do a lightweight dependency scan:
+
+- Cross-reference file paths across flaws — flaws in the same file(s) are likely related
+- Cross-reference categories — e.g., god object (F-02) + low cohesion (F-11) on the same class
+- Present related flaws as groups: "F-02 and F-11 both affect `UserService.ts` — fixing F-02 first will likely resolve F-11"
+
+Then ask:
+
+> "What would you like to focus on?
+> 1. High-impact flaws first
+> 2. Quick wins (low-complexity fixes)
+> 3. Specific flaws (pick by F-ID)
+> 4. Something else"
+
+Based on the developer's answer and team context, recommend a batch size and let them select specific flaws.
+
+### Step 4: Plan Confirmation
+
+Summarize the full plan:
+- Selected flaws in fix order
+- Known dependencies between them
+- Testing approach considerations
+- Batch size
+- Commit mode
+
+Get explicit go-ahead before touching any code.
+
+## Phase 2: The Fix Loop
+
+For each flaw in the confirmed batch, execute this sequence:
+
+### 2a. Validate the Flaw
+
+Read the code at the referenced file:line. Check `git log` on affected files since the report date. Determine outcome:
+
+| Outcome | Action |
+|---------|--------|
+| Still exists as described | Proceed to 2b |
+| Partially addressed | Explain what changed, ask developer if it still needs work |
+| No longer exists | Mark "Fixed (pre-existing)" in report with date and commit SHA, move to next |
+| False positive / wrong | Explain why, ask developer. If agreed, mark "Won't fix — false positive" |
+
+If uncertain about any flaw, ask the developer specifically rather than guessing.
+
+### 2b. Assess Test Coverage
+
+Check whether the affected code has existing tests. Three outcomes:
+
+**Good coverage exists** → proceed to 2c.
+
+**Testable but untested** → write tests for existing behavior first, then red/green/refactor the fix. Flag this as higher risk: "This code has no tests. I'll write tests for the current behavior first so we have a safety net."
+
+**Not unit-testable without refactoring** → analyze the code and present feasible, specific testing approaches with tradeoffs. The skill must assess *how* to write tests concretely, not offer abstract categories:
+
+1. Refactor for testability first, then fix (safest, more work)
+2. Write end-to-end/integration tests covering the affected paths — explain specifically how (e.g., "test via the `/api/orders` endpoint which exercises this validation path")
+3. Fix without tests (risky)
+4. Skip this flaw for now
+
+If only one testing approach is feasible, present it with explanation of why alternatives aren't viable. Developer chooses.
+
+### 2c. Propose Fix Options
+
+If multiple fix approaches exist, present as a numbered list:
+- Recommended option first, with reasoning
+- Each option includes: what changes, files affected, tradeoffs (complexity, risk, scope)
+
+If only one reasonable approach, present it and get confirmation.
+
+### 2d. Execute the Fix
+
+Follow red/green/refactor:
+1. **Red** — write/update tests that fail against the current code (for the desired behavior)
+2. **Green** — make the minimal code change to pass tests
+3. **Refactor** — clean up if warranted
+
+### 2e. Handle Test Failures
+
+If tests fail after the fix:
+
+1. Analyze *which* tests failed and *why*
+2. **Internal unit tests breaking because structure changed** → expected during refactoring, propose updating them
+3. **External/integration tests breaking** → red flag, discuss with developer whether to fix forward or revert
+4. Developer decides how to proceed
+
+### 2f. Commit
+
+If auto-commit mode: one commit per fix, including tests and report update.
+If manual mode: leave changes staged, tell the developer what changed.
+
+### 2g. Update the Report
+
+Add status fields inline to the flaw entry in the architecture report:
+
+```markdown
+### [F-ID] <Flaw label>
+- **Category:** ...
+- **Impact:** ...
+- **Explanation:** ...
+- **Evidence:** ...
+- **Found by:** ...
+- **Status:** Fixed
+- **Status reason:** Extracted PaymentLogic and NotificationLogic into separate services
+- **Status date:** 2026-03-18 14:32 UTC
+- **Status commit:** abc123f
+```
+
+If status fields don't exist on the entry (report was generated before this skill existed), add them.
+
+### 2h. Check Flaw Dependencies
+
+Before moving to the next flaw, check if the fix just applied addresses or affects other flaws in the batch:
+
+> "Fixing F-03 appears to have also resolved F-07 (low cohesion). Let me verify..."
+
+Validate and update accordingly.
+
+### 2i. Continue or Stop
+
+> "F-03 is done. N flaws remaining in this batch. Continue with F-05, or stop here?"
+
+## Phase 3: Post-Session
+
+After the developer stops or the batch is complete:
+
+1. Print summary:
+   - Number of flaws fixed, skipped, won't-fixed this session
+   - Remaining unfixed flaws in the report
+   - Updated report path
+2. Suggest: "Run `/paad:fix-architecture` again in a fresh session to continue fixing remaining flaws."
+
+## Status Values
+
+| Status | Requires reason? | When used |
+|--------|-----------------|-----------|
+| Not yet fixed | No | Default for untouched flaws (no status fields added) |
+| Fixed | Yes | Fix applied and tests pass |
+| Won't fix | Yes | Developer decided not to fix (with rationale) |
+| Partially fixed | Yes | Some aspect addressed, more work needed |
+| Skipped | Yes | Deferred to a future session |
+| Fixed (pre-existing) | Yes | Was already fixed before this session |
+| Attempted, reverted | Yes | Fix was tried but reverted after discussion |
+
+## Scope Boundaries
+
+This skill does **NOT**:
+
+- Re-run architecture analysis — use `/paad:agentic-architecture` for that
+- Fix flaws not in the report — if new issues are spotted, re-run the analysis first
+- Propose new architectural patterns — it fixes what's identified, it doesn't redesign
+- Touch code outside the scope of selected flaws (except where a fix necessarily requires changes to callers/consumers)
+
+## Integration with Existing Skills
+
+- **Reads from:** `/paad:agentic-architecture` reports in `paad/architecture-reviews/`
+- **Updates:** the same report files (adds status fields to flaw entries)
+- **No changes to `/paad:agentic-architecture`** — the fix skill handles missing status fields gracefully
+- **Does not invoke other skills** — standalone workflow
+
+## Deliverables
+
+When implementing this skill:
+
+1. Create `plugins/paad/skills/fix-architecture/SKILL.md`
+2. Update `plugins/paad/skills/help/SKILL.md` with fix-architecture help
+3. Update `README.md` with fix-architecture documentation
+4. Bump version in `plugin.json` and `marketplace.json`
+5. Validate with `claude plugin validate ./plugins/paad`
