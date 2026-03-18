@@ -27,12 +27,13 @@ A new technique skill that takes an existing `/paad:agentic-architecture` report
 ## Pre-flight Checks
 
 1. **Context window** — if conversation has substantive history beyond invoking this skill, recommend a fresh session and stop.
-2. **Branch protection** — refuse to operate on the default branch (main/master/trunk). Detect via `git remote show origin` for HEAD branch, falling back to name matching. The developer must be on a feature branch.
+2. **Branch protection** — refuse to operate on the default branch (main/master/trunk). Detect via `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null` (local, instant), falling back to branch name matching (`main`/`master`/`trunk`), and only falling back to `git remote show origin` as a last resort if neither works. The developer must be on a feature branch.
 3. **Report exists** — locate the report from `$ARGUMENTS` or find the most recent in `paad/architecture-reviews/`. If none found, tell the developer to run `/paad:agentic-architecture` first and stop.
 4. **Report staleness** — compare the report's `**Commit:**` SHA and date against current state:
    - Count commits since report: `git rev-list --count <report-sha>..HEAD`
    - If >20 commits or report date >14 days old, warn: "This report was generated N commits / N days ago. Some findings may be outdated. I'll validate each flaw before fixing, but consider re-running `/paad:agentic-architecture` for a fresh baseline."
-   - Developer can override and proceed.
+   - Parse the SHA from the report's `**Commit:** <full-sha>` header field.
+   - Ask explicitly: "Proceed anyway? (yes / no / re-run `/paad:agentic-architecture` first)"
 
 ## Phase 1: Developer Conversation
 
@@ -71,6 +72,8 @@ Then ask:
 
 Based on the developer's answer and team context, recommend a batch size and let them select specific flaws.
 
+If no unfixed flaws remain (all are marked Fixed or Won't Fix), congratulate the developer and suggest re-running `/paad:agentic-architecture` for a fresh analysis to find any new issues.
+
 ### Step 4: Plan Confirmation
 
 Summarize the full plan:
@@ -88,7 +91,7 @@ For each flaw in the confirmed batch, execute this sequence:
 
 ### 2a. Validate the Flaw
 
-Read the code at the referenced file:line. Check `git log` on affected files since the report date. Determine outcome:
+Read targeted sections around the referenced file:line (not entire files — conserve context window). Check `git log` on affected files since the report date. Determine outcome:
 
 | Outcome | Action |
 |---------|--------|
@@ -105,7 +108,7 @@ Check whether the affected code has existing tests. Three outcomes:
 
 **Good coverage exists** → proceed to 2c.
 
-**Testable but untested** → write tests for existing behavior first, then red/green/refactor the fix. Flag this as higher risk: "This code has no tests. I'll write tests for the current behavior first so we have a safety net."
+**Testable but untested** → write tests for existing behavior first, then red/green/refactor the fix. Flag this as higher risk: "This code has no tests. I'll write tests for the current behavior first so we have a safety net." In auto-commit mode, commit the safety-net tests separately before applying the fix, so they can be preserved independently if the fix is reverted.
 
 **Not unit-testable without refactoring** → analyze the code and present feasible, specific testing approaches with tradeoffs. The skill must assess *how* to write tests concretely, not offer abstract categories:
 
@@ -142,7 +145,19 @@ If tests fail after the fix:
 
 ### 2f. Commit
 
-If auto-commit mode: one commit per fix, including tests and report update.
+If auto-commit mode: one commit per fix (including tests and report update), using this commit message format:
+
+```
+fix(architecture): [F-ID] <short description>
+
+Resolves architectural flaw F-ID (<flaw label>) identified in
+<report-filename>.
+
+<brief description of what changed>
+```
+
+Note: safety-net tests for previously untested code are committed separately (see 2b) so they survive if the fix is reverted.
+
 If manual mode: leave changes staged, tell the developer what changed.
 
 ### 2g. Update the Report
@@ -175,6 +190,8 @@ Validate and update accordingly.
 ### 2i. Continue or Stop
 
 > "F-03 is done. N flaws remaining in this batch. Continue with F-05, or stop here?"
+
+If context usage is approaching limits, recommend stopping after the current fix and continuing in a fresh session. Do not attempt a fix that may not fit in remaining context.
 
 ## Phase 3: Post-Session
 
@@ -219,7 +236,7 @@ This skill does **NOT**:
 When implementing this skill:
 
 1. Create `plugins/paad/skills/fix-architecture/SKILL.md`
-2. Update `plugins/paad/skills/help/SKILL.md` with fix-architecture help
+2. Update `plugins/paad/skills/help/SKILL.md` — both the overview table AND a detailed help section
 3. Update `README.md` with fix-architecture documentation
 4. Bump version in `plugin.json` and `marketplace.json`
 5. Validate with `claude plugin validate ./plugins/paad`
