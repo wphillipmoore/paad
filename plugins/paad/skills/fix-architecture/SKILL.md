@@ -102,7 +102,7 @@ Then ask:
 > 3. Specific flaws (pick by F-ID)
 > 4. Something else"
 
-If the developer picks "quick wins," do a lightweight scan of the affected code before presenting candidates — check file size, number of references, whether the fix is localized or cross-cutting. Present the ones that look genuinely simple with a caveat: "Based on a quick scan, these look straightforward — but I'll verify each one before fixing."
+If the developer picks "quick wins," do a lightweight scan of the affected code before presenting candidates — check file size, number of references, whether the fix is localized or cross-cutting. Present the ones that look genuinely simple with a caveat: "Based on a quick scan, these look straightforward — but I'll verify each one before fixing." **Do not describe fix approaches or verification steps in the triage — that's Phase 3.** The triage only assesses scope (how many files, how localized) to help the developer choose.
 
 Based on the developer's answer and team context, recommend a batch size and let them select specific flaws.
 
