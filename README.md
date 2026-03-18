@@ -143,6 +143,20 @@ AI builds on bad foundations. This skill finds them — dispatching five special
 - **Hotspots** identifying the top files/directories to review
 - **Report** written to `paad/architecture-reviews/`
 
+#### `/paad:fix-architecture [report]`
+
+Architecture analysis tells you what's wrong. This skill fixes it — loading an architecture report and guiding you through fixing flaws one at a time with a test-first workflow. Each fix is validated, tested, committed, and tracked in the report so you can pick up where you left off.
+
+- **Arguments:** `/paad:fix-architecture` (find most recent report) or `/paad:fix-architecture path/to/report.md` (specific report)
+- **Pre-flight checks**: branch protection (feature branch required), report staleness detection, test infrastructure verification, baseline test run
+- **Developer conversation** before any code is touched: solo vs team (batch size), auto-commit vs manual, flaw triage (high-impact, quick wins, or specific F-IDs), plan confirmation
+- **Test-first fixes** — validates each flaw still exists, writes safety-net tests for untested code, proposes fix options with tradeoffs, executes with red/green/refactor
+- **Status tracking** in the report: Fixed, Won't fix, Partially fixed, Skipped, Fixed (pre-existing), Attempted/reverted — with reasons, timestamps, and commit SHAs
+- **Flaw dependency detection** — flags when fixing one flaw resolves others
+- **Iterative** — run across multiple sessions, each time fixing more flaws from the same report
+
+Requires a feature branch (not main/master) and an existing architecture report.
+
 ---
 
 ### Degradation
