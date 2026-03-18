@@ -65,7 +65,7 @@ digraph preflight {
 
 5. **Test infrastructure:** Check whether the project has a test framework, runner, and conventions (e.g., a `test/` or `__tests__/` directory, a test script in `package.json`, pytest config, etc.). If no test infrastructure exists: "This project has no test infrastructure. Fixes without tests are high-risk. Want to set up a test framework first, proceed without tests, or stop?" Wait for the developer's decision.
 
-6. **Baseline test run:** Run the existing test suite to establish a green baseline. If tests are already failing: "N tests are currently failing before any changes. This means I can't reliably attribute test failures to my fixes. Proceed anyway, or fix the failing tests first?" Record which tests are failing so step 2e can distinguish pre-existing failures from newly introduced ones.
+6. **Baseline test run:** Run the existing test suite to establish a green baseline. If tests are already failing: "N tests are currently failing before any changes. This means I can't reliably attribute test failures to my fixes. Proceed anyway, or fix the failing tests first?" Record which tests are failing so step 3e can distinguish pre-existing failures from newly introduced ones.
 
 ## Phase 1: Developer Conversation
 
@@ -119,28 +119,38 @@ Summarize the full plan:
 
 Get explicit go-ahead before touching any code.
 
-## Phase 2: The Fix Loop
+## Phase 2: Safety-Net Tests (if batch > 1)
+
+If the batch contains more than one flaw, write all safety-net tests **before any fixes are applied.** Refactoring one flaw can break code that another flaw's tests would have caught — but only if those tests exist yet. The safe approach:
+
+1. For each flaw in the batch, run steps 2a and 2b (validate and assess test coverage)
+2. Write and commit all safety-net tests upfront
+3. Then proceed to the fix loop (starting at 2c for each flaw)
+
+If the batch contains only one flaw, steps 2a and 2b run inline as part of the fix loop below.
+
+## Phase 3: The Fix Loop
 
 For each flaw in the confirmed batch, execute this sequence:
 
-### 2a. Validate the Flaw
+### 3a. Validate the Flaw
 
 Read targeted sections around the referenced file:line (not entire files — conserve context window). Check `git log` on affected files since the report date. Determine outcome:
 
 | Outcome | Action |
 |---------|--------|
-| Still exists as described | Proceed to 2b |
+| Still exists as described | Proceed to 3b |
 | Partially addressed | Explain what changed, ask developer if it still needs work |
 | No longer exists | Mark "Fixed (pre-existing)" in report with date and commit SHA, move to next |
 | False positive / wrong | Explain why, ask developer. If agreed, mark "Won't fix — false positive" |
 
 If uncertain about any flaw, ask the developer specifically rather than guessing.
 
-### 2b. Assess Test Coverage
+### 3b. Assess Test Coverage
 
 Check whether the affected code has existing tests. Three outcomes:
 
-**Good coverage exists** → proceed to 2c.
+**Good coverage exists** → "good" means no significant gaps were found in the paths that will be affected by the fix. If gaps are identified during assessment — even if overall coverage looks strong — fill them with safety-net tests before proceeding. Do not dismiss gaps as "edge cases" and proceed anyway.
 
 **Testable but untested** → write tests for existing behavior first, then red/green/refactor the fix. Flag this as higher risk: "This code has no tests. I'll write tests for the current behavior first so we have a safety net." In auto-commit mode, commit the safety-net tests separately before applying the fix, so they can be preserved independently if the fix is reverted.
 
@@ -153,7 +163,7 @@ Check whether the affected code has existing tests. Three outcomes:
 
 If only one testing approach is feasible, present it with explanation of why alternatives aren't viable. Developer chooses.
 
-### 2c. Propose Fix Options
+### 3c. Propose Fix Options
 
 If multiple fix approaches exist, present as a numbered list:
 - Recommended option first, with reasoning
@@ -161,14 +171,14 @@ If multiple fix approaches exist, present as a numbered list:
 
 If only one reasonable approach, present it and get confirmation.
 
-### 2d. Execute the Fix
+### 3d. Execute the Fix
 
 Follow red/green/refactor:
 1. **Red** — write/update tests that fail against the current code (for the desired behavior)
 2. **Green** — make the minimal code change to pass tests
 3. **Refactor** — clean up if warranted
 
-### 2e. Handle Test Failures
+### 3e. Handle Test Failures
 
 If tests fail after the fix:
 
@@ -180,7 +190,7 @@ If tests fail after the fix:
 
 After the fix passes, do a brief sanity check: does the change introduce any obvious new architectural issues (e.g., splitting a god object but creating tight coupling between the new modules)? If so, flag it to the developer. This is not a full re-analysis — just a common-sense review of the code just written.
 
-### 2f. Commit
+### 3f. Commit
 
 If auto-commit mode: one commit per fix (including tests and report update), using this commit message format:
 
@@ -193,11 +203,11 @@ Resolves architectural flaw F-ID (<flaw label>) identified in
 <brief description of what changed>
 ```
 
-Note: safety-net tests for previously untested code are committed separately (see 2b) so they survive if the fix is reverted.
+Note: safety-net tests are committed in Phase 2 (before any fixes) so they survive if a fix is reverted.
 
 If manual mode: leave changes staged, tell the developer what changed.
 
-### 2g. Update the Report
+### 3g. Update the Report
 
 Add status fields inline to the flaw entry in the architecture report:
 
@@ -216,7 +226,7 @@ Add status fields inline to the flaw entry in the architecture report:
 
 If status fields don't exist on the entry (report was generated before this skill existed), add them.
 
-### 2h. Check Flaw Dependencies
+### 3h. Check Flaw Dependencies
 
 Before moving to the next flaw, check if the fix just applied addresses or affects other flaws in the report (not just the current batch — a fix might resolve flaws the developer didn't select):
 
@@ -224,13 +234,13 @@ Before moving to the next flaw, check if the fix just applied addresses or affec
 
 Validate and update accordingly.
 
-### 2i. Continue or Stop
+### 3i. Continue or Stop
 
 > "F-03 is done. N flaws remaining in this batch. Continue with F-05, or stop here?"
 
 If context usage is approaching limits, recommend stopping after the current fix and continuing in a fresh session. Do not attempt a fix that may not fit in remaining context.
 
-## Phase 3: Post-Session
+## Phase 4: Post-Session
 
 After the developer stops or the batch is complete:
 
@@ -258,13 +268,14 @@ These patterns produce bad architecture fix sessions. Avoid them:
 
 | Mistake | What to do instead |
 |---------|-------------------|
-| Fixing without validating first | Always check if the flaw still exists (2a) — code may have changed since the report |
-| Skipping tests | Always assess test coverage (2b) and write safety-net tests before changing untested code |
+| Fixing without validating first | Always check if the flaw still exists (3a) — code may have changed since the report |
+| Skipping tests | Always assess test coverage (3b) and write safety-net tests before changing untested code |
 | Fixing on the default branch | Architecture fixes go on feature branches — never main/master/trunk |
-| Ignoring flaw dependencies | Check whether fixing one flaw resolves others (2h) — avoid duplicate work |
+| Ignoring flaw dependencies | Check whether fixing one flaw resolves others (3h) — avoid duplicate work |
 | Large batches on team repos | Team members' concurrent work creates conflict risk — recommend 1-2 fixes per session |
 | Continuing when context is low | Stop after the current fix and suggest a fresh session rather than starting a fix that won't fit |
 | Auto-deciding without developer input | Every consequential decision (what to fix, how to test, which approach) requires developer approval |
-| Bundling safety-net tests with fixes | In auto-commit mode, commit safety-net tests separately so they survive if the fix is reverted |
+| Writing tests alongside fixes in multi-flaw batches | When fixing multiple flaws, write ALL safety-net tests in Phase 2 before ANY fixes in Phase 3 — one refactor can break code another flaw's tests would have caught |
+| Calling coverage "good" despite identified gaps | If gaps are found during assessment, fill them — don't dismiss gaps as "edge cases" and proceed |
 | Reading entire files | Read targeted sections around the referenced lines to conserve context |
 | Proposing abstract test strategies | Assess *how* to write tests concretely — name the specific endpoints, functions, or paths |
