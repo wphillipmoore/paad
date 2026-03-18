@@ -201,7 +201,7 @@ If manual mode: leave changes staged, tell the developer what changed.
 
 Add status fields inline to the flaw entry in the architecture report:
 
-```
+```markdown
 ### [F-ID] <Flaw label>
 - **Category:** ...
 - **Impact:** ...
@@ -210,8 +210,8 @@ Add status fields inline to the flaw entry in the architecture report:
 - **Found by:** ...
 - **Status:** Fixed
 - **Status reason:** Extracted PaymentLogic and NotificationLogic into separate services
-- **Status date:** 2026-03-18 14:32 UTC
-- **Status commit:** abc123f
+- **Status date:** <YYYY-MM-DD HH:MM UTC>
+- **Status commit:** <commit-sha>
 ```
 
 If status fields don't exist on the entry (report was generated before this skill existed), add them.
