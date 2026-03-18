@@ -113,22 +113,19 @@ If no unfixed flaws remain (all are marked Fixed or Won't Fix), congratulate the
 Summarize the full plan:
 - Selected flaws in fix order (ordered by: dependencies first — flaws that unblock others; then by impact — High before Medium before Low; then by complexity — simpler first within the same impact level. The developer can override this order.)
 - Known dependencies between them
-- Testing note (batch > 1): "I'll validate all flaws and write all safety-net tests upfront in Phase 2 before applying any fixes."
-- Testing note (single flaw): "I'll assess test coverage and write safety-net tests before applying the fix."
+- Testing: "I'll validate all flaws and write all safety-net tests in Phase 2 before any code is changed."
 - Batch size
 - Commit mode
 
 Get explicit go-ahead before touching any code.
 
-## Phase 2: Safety-Net Tests (if batch > 1)
+## Phase 2: Validate and Write Safety-Net Tests
 
-If the batch contains more than one flaw, write all safety-net tests **before any fixes are applied.** Refactoring one flaw can break code that another flaw's tests would have caught — but only if those tests exist yet. The safe approach:
+**Before any code is changed**, validate every flaw in the batch and write all needed safety-net tests. Changes can have unexpected action at a distance — tests must exist before any refactoring begins, even for a single fix.
 
-1. For each flaw in the batch, run steps 2a and 2b (validate and assess test coverage)
+1. For each flaw in the batch, run steps 2a and 2b (validate the flaw and assess test coverage)
 2. Write and commit all safety-net tests upfront
-3. Then proceed to the fix loop (starting at 2c for each flaw)
-
-If the batch contains only one flaw, steps 2a and 2b run inline as part of the fix loop below.
+3. Only then proceed to the fix loop in Phase 3
 
 ## Phase 3: The Fix Loop
 
@@ -276,7 +273,7 @@ These patterns produce bad architecture fix sessions. Avoid them:
 | Large batches on team repos | Team members' concurrent work creates conflict risk — recommend 1-2 fixes per session |
 | Continuing when context is low | Stop after the current fix and suggest a fresh session rather than starting a fix that won't fit |
 | Auto-deciding without developer input | Every consequential decision (what to fix, how to test, which approach) requires developer approval |
-| Writing tests alongside fixes in multi-flaw batches | When fixing multiple flaws, write ALL safety-net tests in Phase 2 before ANY fixes in Phase 3 — one refactor can break code another flaw's tests would have caught |
+| Writing tests alongside fixes | ALL safety-net tests must be written in Phase 2 before ANY fixes in Phase 3 — changes can have action at a distance, even a single fix |
 | Calling coverage "good" despite identified gaps | If gaps are found during assessment, fill them — don't dismiss gaps as "edge cases" and proceed |
 | Asking multiple questions at once | One question per message in Phase 1 — ask, wait for the answer, then ask the next |
 | Reading entire files | Read targeted sections around the referenced lines to conserve context |

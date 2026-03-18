@@ -83,22 +83,19 @@ If no unfixed flaws remain (all are marked Fixed or Won't Fix), congratulate the
 Summarize the full plan:
 - Selected flaws in fix order (ordered by: dependencies first — flaws that unblock others; then by impact — High before Medium before Low; then by complexity — simpler first within the same impact level. The developer can override this order.)
 - Known dependencies between them
-- Testing note (batch > 1): "I'll validate all flaws and write all safety-net tests upfront in Phase 2 before applying any fixes."
-- Testing note (single flaw): "I'll assess test coverage and write safety-net tests before applying the fix."
+- Testing: "I'll validate all flaws and write all safety-net tests in Phase 2 before any code is changed."
 - Batch size
 - Commit mode
 
 Get explicit go-ahead before touching any code.
 
-## Phase 2: Safety-Net Tests (if batch > 1)
+## Phase 2: Validate and Write Safety-Net Tests
 
-If the batch contains more than one flaw, write all safety-net tests **before any fixes are applied.** Refactoring one flaw can break code that another flaw's tests would have caught — but only if those tests exist yet. The safe approach:
+**Before any code is changed**, validate every flaw in the batch and write all needed safety-net tests. Changes can have unexpected action at a distance — tests must exist before any refactoring begins, even for a single fix.
 
-1. For each flaw in the batch, validate and assess test coverage
+1. For each flaw in the batch, validate the flaw and assess test coverage
 2. Write and commit all safety-net tests upfront
-3. Then proceed to the fix loop
-
-If the batch contains only one flaw, validation and test assessment run inline as part of the fix loop.
+3. Only then proceed to the fix loop in Phase 3
 
 ## Phase 3: The Fix Loop
 
