@@ -83,7 +83,7 @@ If no unfixed flaws remain (all are marked Fixed or Won't Fix), congratulate the
 Summarize the full plan:
 - Selected flaws in fix order (ordered by: dependencies first — flaws that unblock others; then by impact — High before Medium before Low; then by complexity — simpler first within the same impact level. The developer can override this order.)
 - Known dependencies between them
-- Testing approach considerations
+- Testing note: "Test coverage will be assessed per-flaw before each fix — I'll verify what's actually covered, not assume."
 - Batch size
 - Commit mode
 
