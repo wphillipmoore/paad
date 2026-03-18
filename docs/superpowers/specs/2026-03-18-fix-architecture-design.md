@@ -39,7 +39,7 @@ A new technique skill that takes an existing `/paad:agentic-architecture` report
 
 ## Phase 1: Developer Conversation
 
-A setup conversation before any code is touched. Four steps, asked sequentially:
+A setup conversation before any code is touched. **One question per message. Ask, wait for the answer, then ask the next.** Do not combine multiple questions into one message.
 
 ### Step 1: Team Context
 

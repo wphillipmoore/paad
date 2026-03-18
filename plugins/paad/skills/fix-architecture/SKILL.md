@@ -69,7 +69,7 @@ digraph preflight {
 
 ## Phase 1: Developer Conversation
 
-A setup conversation before any code is touched. Four steps, asked sequentially:
+A setup conversation before any code is touched. **One question per message. Ask, wait for the answer, then ask the next.** Do not combine multiple questions into one message — it is frustrating and overwhelming.
 
 ### Step 1: Team Context
 
@@ -277,5 +277,6 @@ These patterns produce bad architecture fix sessions. Avoid them:
 | Auto-deciding without developer input | Every consequential decision (what to fix, how to test, which approach) requires developer approval |
 | Writing tests alongside fixes in multi-flaw batches | When fixing multiple flaws, write ALL safety-net tests in Phase 2 before ANY fixes in Phase 3 — one refactor can break code another flaw's tests would have caught |
 | Calling coverage "good" despite identified gaps | If gaps are found during assessment, fill them — don't dismiss gaps as "edge cases" and proceed |
+| Asking multiple questions at once | One question per message in Phase 1 — ask, wait for the answer, then ask the next |
 | Reading entire files | Read targeted sections around the referenced lines to conserve context |
 | Proposing abstract test strategies | Assess *how* to write tests concretely — name the specific endpoints, functions, or paths |
