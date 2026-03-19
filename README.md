@@ -236,12 +236,39 @@ Then invoke skills with `/paad:help` to see all available skills, or try `/paad:
 
 After making changes, run `/reload-plugins` inside Claude Code to pick up updates without restarting.
 
-### Validate
+### Testing
+
+Run all checks with:
 
 ```bash
-claude plugin validate .                  # validate marketplace
-claude plugin validate ./plugins/paad     # validate plugin
+make test
 ```
+
+This validates the marketplace and plugin structure, then runs consistency checks (version sync, digraph presence, help/README coverage, frontmatter validity). See all available targets with `make help`.
+
+Individual checks can be run separately:
+
+```bash
+make check-versions     # marketplace.json ↔ plugin.json version sync
+make check-digraphs     # every skill (except help) has a digraph
+make check-help         # every skill is documented in paad:help
+make check-readme       # every skill is documented in README.md
+make check-frontmatter  # SKILL.md frontmatter is valid, folder name matches
+make validate           # claude plugin validate on marketplace + plugins
+```
+
+## Contributing
+
+1. Fork the repo and create a feature branch
+2. Make your changes — see `CLAUDE.md` for conventions on adding/modifying skills
+3. Run `make test` to verify everything passes
+4. Open a pull request
+
+Key rules from `CLAUDE.md`:
+- Every skill (except `help`) must include a graphviz digraph covering its decision points
+- Skill folder names must match the `name` field in `SKILL.md` frontmatter
+- Bump the version in both `plugin.json` and `marketplace.json`
+- Update `README.md`, `paad:help`, and `CLAUDE.md` when adding or changing skills
 
 ## License
 
