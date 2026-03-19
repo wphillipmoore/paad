@@ -7,7 +7,7 @@ description: Guided fixing of architectural flaws from an agentic-architecture r
 
 Guided, iterative fixing of architectural flaws identified by `/paad:agentic-architecture`. Loads an existing architecture report, walks the developer through selecting and prioritizing flaws, then fixes them one at a time with a test-first workflow. Updates the report with status tracking so the skill can be re-run across multiple sessions.
 
-**This is a technique skill.** Follow the phases in order. Do not skip validation or testing steps.
+**This is a technique skill.** Follow the phases (Setup → Safety Net → Fix Loop → Wrap-Up) in order. Do not skip validation or testing steps.
 
 ## Arguments
 
@@ -26,7 +26,7 @@ digraph preflight {
   "Report stale?" [shape=diamond];
   "Test infrastructure?" [shape=diamond];
   "Baseline tests pass?" [shape=diamond];
-  "Proceed to Phase 1" [shape=box];
+  "Proceed to Setup" [shape=box];
   "STOP: recommend fresh session" [shape=box, style=bold];
   "STOP: switch to feature branch" [shape=box, style=bold];
   "STOP: run agentic-architecture first" [shape=box, style=bold];
@@ -47,8 +47,8 @@ digraph preflight {
   "Test infrastructure?" -> "Baseline tests pass?" [label="yes"];
   "Warn no test infra, ask to proceed" -> "Baseline tests pass?";
   "Baseline tests pass?" -> "Warn failing tests, ask to proceed" [label="some failing"];
-  "Baseline tests pass?" -> "Proceed to Phase 1" [label="all pass"];
-  "Warn failing tests, ask to proceed" -> "Proceed to Phase 1";
+  "Baseline tests pass?" -> "Proceed to Setup" [label="all pass"];
+  "Warn failing tests, ask to proceed" -> "Proceed to Setup";
 }
 ```
 
@@ -65,9 +65,9 @@ digraph preflight {
 
 5. **Test infrastructure:** Check whether the project has a test framework, runner, and conventions (e.g., a `test/` or `__tests__/` directory, a test script in `package.json`, pytest config, etc.). If no test infrastructure exists: "This project has no test infrastructure. Fixes without tests are high-risk. Want to set up a test framework first, proceed without tests, or stop?" Wait for the developer's decision.
 
-6. **Baseline test run:** Run the existing test suite to establish a green baseline. If tests are already failing: "N tests are currently failing before any changes. This means I can't reliably attribute test failures to my fixes. Proceed anyway, or fix the failing tests first?" Record which tests are failing so step 3e can distinguish pre-existing failures from newly introduced ones.
+6. **Baseline test run:** Run the existing test suite to establish a green baseline. If tests are already failing: "N tests are currently failing before any changes. This means I can't reliably attribute test failures to my fixes. Proceed anyway, or fix the failing tests first?" Record which tests are failing so the Handle Test Failures step can distinguish pre-existing failures from newly introduced ones.
 
-## Phase 1: Developer Conversation
+## Setup: Developer Conversation
 
 A setup conversation before any code is touched. **One question per message. Ask, wait for the answer, then ask the next.** Do not combine multiple questions into one message — it is frustrating and overwhelming.
 
@@ -88,21 +88,29 @@ Two modes:
 
 ### Step 3: Flaw Triage
 
-Present flaws from the report, excluding any already marked as Fixed or Won't Fix. Group by impact level (High / Medium / Low). Before presenting, do a lightweight dependency scan:
+Present flaws from the report, excluding any already marked as Fixed or Won't Fix. Before presenting, do two things:
 
-- Cross-reference file paths across flaws — flaws in the same file(s) are likely related
-- Cross-reference categories — e.g., god object (F-02) + low cohesion (F-11) on the same class
+**Dependency scan** — cross-reference flaws to find relationships:
+- File paths — flaws in the same file(s) are likely related
+- Categories — e.g., god object (F-02) + low cohesion (F-11) on the same class
 - Present related flaws as groups: "F-02 and F-11 both affect `UserService.ts` — fixing F-02 first will likely resolve F-11"
 
-Then ask:
+**Complexity assessment** — for each flaw, do a lightweight scan of the affected code to estimate fix complexity (Low / Medium / High):
+- **Low complexity:** localized change (1-2 files), few references, no cross-cutting concerns
+- **Medium complexity:** multiple files, moderate references, or requires coordination across a few modules
+- **High complexity:** cross-cutting change, many references, touches core abstractions, or requires significant refactoring
+
+Present flaws in a table showing both **Impact** (from the report) and **Complexity** (from your scan). Only include complexity categories that have flaws in them — skip empty categories.
+
+Then ask (adapting the options to reflect the actual impact and complexity of the remaining flaws — do NOT label flaws as "high impact" if they are Medium or Low in the report):
 
 > "What would you like to focus on?
-> 1. High-impact flaws first
-> 2. Quick wins (low-complexity fixes)
+> 1. Highest-impact flaws first (<list F-IDs with their actual impact levels>)
+> 2. Lowest-complexity flaws first (<list F-IDs you assessed as low complexity>)
 > 3. Specific flaws (pick by F-ID)
 > 4. Something else"
 
-If the developer picks "quick wins," do a lightweight scan of the affected code before presenting candidates — check file size, number of references, whether the fix is localized or cross-cutting. Present the ones that look genuinely simple with a caveat: "Based on a quick scan, these look straightforward — but I'll verify each one before fixing." **Do not describe fix approaches or verification steps in the triage — that's Phase 3.** The triage only assesses scope (how many files, how localized) to help the developer choose.
+**Do not describe fix approaches or verification steps in the triage — that's the Fix Loop.** The triage assesses scope (how many files, how localized) and complexity to help the developer choose, not how the fix will work.
 
 Based on the developer's answer and team context, recommend a batch size and let them select specific flaws.
 
@@ -113,38 +121,39 @@ If no unfixed flaws remain (all are marked Fixed or Won't Fix), congratulate the
 Summarize the full plan:
 - Selected flaws in fix order (ordered by: dependencies first — flaws that unblock others; then by impact — High before Medium before Low; then by complexity — simpler first within the same impact level. The developer can override this order.)
 - Known dependencies between them
-- Testing: "I'll validate all flaws and write all safety-net tests in Phase 2 before any code is changed."
+- Testing note: "I'll validate all flaws and write ALL safety-net tests in the Safety Net phase before any code is changed. No exceptions — one refactor can break code another flaw's tests would have caught."
 - Batch size
 - Commit mode
 
 Get explicit go-ahead before touching any code.
 
-## Phase 2: Validate and Write Safety-Net Tests
+## Safety Net: Validate and Write Upfront Tests
 
-**Before any code is changed**, validate every flaw in the batch and write all needed safety-net tests. Changes can have unexpected action at a distance — tests must exist before any refactoring begins, even for a single fix.
+**Non-negotiable rule: ALL safety-net tests must be written and committed before ANY fixes are applied. No exceptions.** Changes can have unexpected action at a distance — tests must exist before any refactoring begins, even for a single fix. This phase must complete fully before the Fix Loop begins.
 
-1. For each flaw in the batch, run steps 2a and 2b (validate the flaw and assess test coverage)
-2. Write and commit all safety-net tests upfront
-3. Only then proceed to the fix loop in Phase 3
+1. For each flaw in the batch, run Validate the Flaw and Assess Test Coverage
+2. Write all needed safety-net tests
+3. Commit all safety-net tests together (before any fix commits)
+4. Only then proceed to the Fix Loop (starting at Propose Fix Options for each flaw)
 
-## Phase 3: The Fix Loop
+## Fix Loop
 
 For each flaw in the confirmed batch, execute this sequence:
 
-### 3a. Validate the Flaw
+### Validate the Flaw
 
 Read targeted sections around the referenced file:line (not entire files — conserve context window). Check `git log` on affected files since the report date. Determine outcome:
 
 | Outcome | Action |
 |---------|--------|
-| Still exists as described | Proceed to 3b |
+| Still exists as described | Proceed to Assess Test Coverage |
 | Partially addressed | Explain what changed, ask developer if it still needs work |
 | No longer exists | Mark "Fixed (pre-existing)" in report with date and commit SHA, move to next |
 | False positive / wrong | Explain why, ask developer. If agreed, mark "Won't fix — false positive" |
 
 If uncertain about any flaw, ask the developer specifically rather than guessing.
 
-### 3b. Assess Test Coverage
+### Assess Test Coverage
 
 Check whether the affected code has existing tests. Three outcomes:
 
@@ -161,7 +170,7 @@ Check whether the affected code has existing tests. Three outcomes:
 
 If only one testing approach is feasible, present it with explanation of why alternatives aren't viable. Developer chooses.
 
-### 3c. Propose Fix Options
+### Propose Fix Options
 
 If multiple fix approaches exist, present as a numbered list:
 - Recommended option first, with reasoning
@@ -169,14 +178,14 @@ If multiple fix approaches exist, present as a numbered list:
 
 If only one reasonable approach, present it and get confirmation.
 
-### 3d. Execute the Fix
+### Execute the Fix
 
 Follow red/green/refactor:
 1. **Red** — write/update tests that fail against the current code (for the desired behavior)
 2. **Green** — make the minimal code change to pass tests
 3. **Refactor** — clean up if warranted
 
-### 3e. Handle Test Failures
+### Handle Test Failures
 
 If tests fail after the fix:
 
@@ -188,7 +197,7 @@ If tests fail after the fix:
 
 After the fix passes, do a brief sanity check: does the change introduce any obvious new architectural issues (e.g., splitting a god object but creating tight coupling between the new modules)? If so, flag it to the developer. This is not a full re-analysis — just a common-sense review of the code just written.
 
-### 3f. Commit
+### Commit
 
 If auto-commit mode: one commit per fix (including tests and report update), using this commit message format:
 
@@ -201,11 +210,11 @@ Resolves architectural flaw F-ID (<flaw label>) identified in
 <brief description of what changed>
 ```
 
-Note: safety-net tests are committed in Phase 2 (before any fixes) so they survive if a fix is reverted.
+Note: safety-net tests are committed in the Safety Net phase (before any fixes) so they survive if a fix is reverted.
 
 If manual mode: leave changes staged, tell the developer what changed.
 
-### 3g. Update the Report
+### Update the Report
 
 Add status fields inline to the flaw entry in the architecture report:
 
@@ -224,7 +233,7 @@ Add status fields inline to the flaw entry in the architecture report:
 
 If status fields don't exist on the entry (report was generated before this skill existed), add them.
 
-### 3h. Check Flaw Dependencies
+### Check Flaw Dependencies
 
 Before moving to the next flaw, check if the fix just applied addresses or affects other flaws in the report (not just the current batch — a fix might resolve flaws the developer didn't select):
 
@@ -232,13 +241,13 @@ Before moving to the next flaw, check if the fix just applied addresses or affec
 
 Validate and update accordingly.
 
-### 3i. Continue or Stop
+### Continue or Stop
 
 > "F-03 is done. N flaws remaining in this batch. Continue with F-05, or stop here?"
 
 If context usage is approaching limits, recommend stopping after the current fix and continuing in a fresh session. Do not attempt a fix that may not fit in remaining context.
 
-## Phase 4: Post-Session
+## Wrap-Up: Post-Session
 
 After the developer stops or the batch is complete:
 
@@ -266,15 +275,15 @@ These patterns produce bad architecture fix sessions. Avoid them:
 
 | Mistake | What to do instead |
 |---------|-------------------|
-| Fixing without validating first | Always check if the flaw still exists (3a) — code may have changed since the report |
-| Skipping tests | Always assess test coverage (3b) and write safety-net tests before changing untested code |
+| Fixing without validating first | Always check if the flaw still exists (Validate the Flaw) — code may have changed since the report |
+| Skipping tests | Always assess test coverage (Assess Test Coverage) and write safety-net tests before changing untested code |
 | Fixing on the default branch | Architecture fixes go on feature branches — never main/master/trunk |
-| Ignoring flaw dependencies | Check whether fixing one flaw resolves others (3h) — avoid duplicate work |
+| Ignoring flaw dependencies | Check whether fixing one flaw resolves others (Check Flaw Dependencies) — avoid duplicate work |
 | Large batches on team repos | Team members' concurrent work creates conflict risk — recommend 1-2 fixes per session |
 | Continuing when context is low | Stop after the current fix and suggest a fresh session rather than starting a fix that won't fit |
 | Auto-deciding without developer input | Every consequential decision (what to fix, how to test, which approach) requires developer approval |
-| Writing tests alongside fixes | ALL safety-net tests must be written in Phase 2 before ANY fixes in Phase 3 — changes can have action at a distance, even a single fix |
+| Writing tests alongside fixes | ALL safety-net tests must be written in the Safety Net phase before ANY fixes in the Fix Loop — changes can have action at a distance, even a single fix |
 | Calling coverage "good" despite identified gaps | If gaps are found during assessment, fill them — don't dismiss gaps as "edge cases" and proceed |
-| Asking multiple questions at once | One question per message in Phase 1 — ask, wait for the answer, then ask the next |
+| Asking multiple questions at once | One question per message in Setup — ask, wait for the answer, then ask the next |
 | Reading entire files | Read targeted sections around the referenced lines to conserve context |
 | Proposing abstract test strategies | Assess *how* to write tests concretely — name the specific endpoints, functions, or paths |

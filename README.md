@@ -157,6 +157,8 @@ Architecture analysis tells you what's wrong. This skill fixes it — loading an
 
 Requires a feature branch (not main/master) and an existing architecture report.
 
+**Why sequential?** Architecture fixes run one at a time, not in parallel. Fixing one flaw often resolves others (the skill checks for this after each fix), and that dependency can only be discovered sequentially. Parallel agents in worktrees would avoid stepping on each other's files, but merging refactored code back together creates conflicts — and resolving merge conflicts after structural changes is a reliable way to introduce new bugs.
+
 ---
 
 ### Degradation
