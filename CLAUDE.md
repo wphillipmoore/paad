@@ -47,15 +47,26 @@ paad/
 
 1. Create `plugins/paad/skills/<skill-name>/SKILL.md` with frontmatter (`name`, `description`) and instructions
 2. Consider `$ARGUMENTS` support — if the skill could benefit from user-provided scope (a file path, directory, branch name, etc.), add an Arguments section documenting usage. Users shouldn't need to remember flags; keep arguments positional and intuitive (e.g., `/paad:skillname path/to/scope`).
-3. Validate with `claude plugin validate ./plugins/paad`
-4. Test locally with `claude --plugin-dir ./plugins/paad`
-5. Bump the version in both `plugins/paad/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`
-6. Update `README.md` to document the new skill under "Available Skills", including argument syntax in the heading
-7. Add the new skill to `paad:help` — both the overview table and a detailed help section
+3. Add a graphviz digraph (```dot block) covering the skill's decision points and flow. The only exception is `paad:help`, which is a simple display skill. See "Digraph requirements" below.
+4. Validate with `claude plugin validate ./plugins/paad`
+5. Test locally with `claude --plugin-dir ./plugins/paad`
+6. Bump the version in both `plugins/paad/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`
+7. Update `README.md` to document the new skill under "Available Skills", including argument syntax in the heading
+8. Add the new skill to `paad:help` — both the overview table and a detailed help section
 
 ## Modifying an existing skill
 
 When changing a skill's behavior, arguments, or output, review `plugins/paad/skills/help/SKILL.md` and update the corresponding help text to match.
+
+## Digraph requirements
+
+Every skill (except `paad:help`) must include at least one graphviz digraph (`\`\`\`dot` block) that visualizes the skill's decision points and flow. Digraphs must be:
+
+- **Complete** — every decision point, stop condition, and branching path in the prose must appear in the digraph
+- **Accurate** — node labels, edge labels, and flow must match the prose exactly. If the prose changes, the digraph must be updated to match.
+- **Relevant** — digraphs exist to prevent the agent from skipping safety gates or misordering steps. Focus on decision points where the agent could cause damage by skipping ahead, not on linear sequences that are obvious from the prose.
+
+When modifying a skill's flow, check that the digraph still matches. When reviewing a skill, cross-reference the digraph against the prose.
 
 ## Important rules
 

@@ -9,6 +9,45 @@ Verifies that intent documents (requirements, specs, PRDs) and action documents 
 
 **This skill does NOT recommend a fresh session.** The conversation history may contain the documents.
 
+```dot
+digraph alignment {
+  "Has $ARGUMENTS?" [shape=diamond];
+  "Conversation has docs?" [shape=diamond];
+  "Found in common locations?" [shape=diamond];
+  "Both sides found?" [shape=diamond];
+  "Git repo?" [shape=diamond];
+  "Source control conflicts?" [shape=diamond];
+
+  "Classify files as intent/action" [shape=box];
+  "Confirm with user" [shape=box];
+  "Present candidates, ask user" [shape=box];
+  "STOP: tell user what's missing" [shape=box, style=bold];
+  "Skip Reality Check" [shape=box];
+  "Present conflicts, resolve first" [shape=box];
+  "Proceed to Alignment Analysis" [shape=box];
+
+  "Has $ARGUMENTS?" -> "Classify files as intent/action" [label="yes"];
+  "Has $ARGUMENTS?" -> "Conversation has docs?" [label="no"];
+  "Conversation has docs?" -> "Confirm with user" [label="yes"];
+  "Conversation has docs?" -> "Found in common locations?" [label="no"];
+  "Found in common locations?" -> "Present candidates, ask user" [label="yes"];
+  "Found in common locations?" -> "STOP: tell user what's missing" [label="no"];
+
+  "Classify files as intent/action" -> "Both sides found?";
+  "Confirm with user" -> "Both sides found?";
+  "Present candidates, ask user" -> "Both sides found?";
+
+  "Both sides found?" -> "Git repo?" [label="yes"];
+  "Both sides found?" -> "STOP: tell user what's missing" [label="no"];
+
+  "Git repo?" -> "Source control conflicts?" [label="yes"];
+  "Git repo?" -> "Proceed to Alignment Analysis" [label="no"];
+  "Source control conflicts?" -> "Present conflicts, resolve first" [label="yes"];
+  "Source control conflicts?" -> "Proceed to Alignment Analysis" [label="no"];
+  "Present conflicts, resolve first" -> "Proceed to Alignment Analysis";
+}
+```
+
 ## Arguments
 
 `/paad:alignment` accepts optional `$ARGUMENTS`:

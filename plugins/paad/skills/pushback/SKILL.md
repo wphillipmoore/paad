@@ -9,6 +9,41 @@ Critically reviews a spec, PRD, requirements document, or design plan before wor
 
 **This skill does NOT recommend a fresh session.** The conversation history may be the spec.
 
+```dot
+digraph pushback {
+  "Has $ARGUMENTS?" [shape=diamond];
+  "Conversation has spec?" [shape=diamond];
+  "Found in common locations?" [shape=diamond];
+  "Git repo?" [shape=diamond];
+  "Source control conflicts?" [shape=diamond];
+
+  "Use that file" [shape=box];
+  "Confirm with user" [shape=box];
+  "Present candidates, ask user" [shape=box];
+  "ASK: what spec to review?" [shape=box];
+  "Present conflicts, resolve first" [shape=box];
+  "Proceed to Spec Critique" [shape=box];
+
+  "Has $ARGUMENTS?" -> "Use that file" [label="yes"];
+  "Has $ARGUMENTS?" -> "Conversation has spec?" [label="no"];
+  "Conversation has spec?" -> "Confirm with user" [label="yes"];
+  "Conversation has spec?" -> "Found in common locations?" [label="no"];
+  "Found in common locations?" -> "Present candidates, ask user" [label="yes"];
+  "Found in common locations?" -> "ASK: what spec to review?" [label="no"];
+
+  "Use that file" -> "Git repo?";
+  "Confirm with user" -> "Git repo?";
+  "Present candidates, ask user" -> "Git repo?";
+  "ASK: what spec to review?" -> "Git repo?";
+
+  "Git repo?" -> "Source control conflicts?" [label="yes"];
+  "Git repo?" -> "Proceed to Spec Critique" [label="no"];
+  "Source control conflicts?" -> "Present conflicts, resolve first" [label="yes"];
+  "Source control conflicts?" -> "Proceed to Spec Critique" [label="no"];
+  "Present conflicts, resolve first" -> "Proceed to Spec Critique";
+}
+```
+
 ## Input Resolution
 
 Resolve the spec to review in this order:
