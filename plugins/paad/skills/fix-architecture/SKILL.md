@@ -58,10 +58,7 @@ digraph preflight {
 
 3. **Report exists:** Locate the report from `$ARGUMENTS` or find the most recent file in `paad/architecture-reviews/` by date prefix. If none found: "No architecture report found. Run `/paad:agentic-architecture` first to generate one." Stop and wait.
 
-4. **Report staleness:** Parse the SHA from the report's `**Commit:** <full-sha>` header field. Compare against current state:
-   - Count commits since report: `git rev-list --count <report-sha>..HEAD`
-   - If >20 commits or report date >14 days old, warn: "This report was generated N commits / N days ago. Some findings may be outdated. I'll validate each flaw before fixing, but consider re-running `/paad:agentic-architecture` for a fresh baseline."
-   - Ask explicitly: "Proceed anyway? (yes / no / re-run `/paad:agentic-architecture` first)"
+4. **Report staleness:** Parse the date from the report. If the report is >14 days old, warn: "This report was generated N days ago. Some findings may be outdated. I'll validate each flaw before fixing, but consider re-running `/paad:agentic-architecture` for a fresh baseline." Ask explicitly: "Proceed anyway? (yes / no / re-run `/paad:agentic-architecture` first)". Do not use commit count as a staleness signal — architectural flaws persist across many commits, and high commit velocity (especially from fix sessions on the same report) does not indicate staleness.
 
 5. **Test infrastructure:** Check whether the project has a test framework, runner, and conventions (e.g., a `test/` or `__tests__/` directory, a test script in `package.json`, pytest config, etc.). If no test infrastructure exists: "This project has no test infrastructure. Fixes without tests are high-risk. Want to set up a test framework first, proceed without tests, or stop?" Wait for the developer's decision.
 
