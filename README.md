@@ -93,7 +93,7 @@ In Kiro and Antigravity, skills are automatically recognized by your assistant. 
 
 ## Available Skills
 
-All skills accept optional arguments to scope or customize their behavior.
+Each skill targets one of the four problems. Run them before, during, or after coding — they all work from the command line inside Claude Code.
 
 ---
 
@@ -132,28 +132,44 @@ AI drifts off-scope. This skill catches it — checking that requirements, desig
 
 #### `/paad:agentic-architecture [path...]`
 
-AI builds on bad foundations. This skill finds them — dispatching five specialist agents to examine your codebase for structural problems before they compound. Diagnosis only, no fixes proposed.
+AI builds on bad foundations. This skill finds them — five specialists each examine your codebase from a different angle (structure, coupling, integration, error handling, security) so nothing hides behind a single reviewer's blind spots. Diagnosis only, no fixes proposed.
 
 - **Arguments:** `/paad:agentic-architecture` (full repo) or `/paad:agentic-architecture src/` (scoped) or `/paad:agentic-architecture packages/api/ packages/shared/` (multiple directories)
-- **5 specialist agents** run in parallel: Structure & Boundaries, Coupling & Dependencies, Integration & Data, Error Handling & Observability, Security & Code Quality
-- **Verification phase** filters false positives — confirms findings by reading actual code and checking git history
+- **Parallel analysis** — all five specialists run simultaneously, then a verification phase filters false positives by reading actual code and checking git history
 - **14 strength categories** (modular boundaries, cohesion, coupling, error handling, observability, security, testability, and more)
 - **34 flaw/risk types** (god objects, tight coupling, circular dependencies, leaky abstractions, dead code, missing tests, hard-coded secrets, and more)
 - **Coverage checklist** ensuring every category is assessed
 - **Hotspots** identifying the top files/directories to review
 - **Report** written to `paad/architecture-reviews/`
 
+#### `/paad:fix-architecture [report]`
+
+Architecture analysis tells you what's wrong. This skill fixes it — loading an architecture report and guiding you through fixing flaws one at a time with a test-first workflow. Each fix is validated, tested, committed, and tracked in the report so you can pick up where you left off.
+
+- **Arguments:** `/paad:fix-architecture` (find most recent report) or `/paad:fix-architecture path/to/report.md` (specific report)
+- **Pre-flight checks**: branch protection (feature branch required), report staleness detection, test infrastructure verification, baseline test run
+- **Developer conversation** before any code is touched: solo vs team (batch size), auto-commit vs manual, flaw triage (high-impact, quick wins, or specific F-IDs), plan confirmation
+- **Test-first fixes** — validates each flaw still exists, writes safety-net tests for untested code, proposes fix options with tradeoffs, executes with red/green/refactor
+- **Status tracking** in the report: Fixed, Won't fix, Partially fixed, Skipped, Fixed (pre-existing), Attempted/reverted — with reasons, timestamps, and commit SHAs
+- **Flaw dependency detection** — flags when fixing one flaw resolves others
+- **Iterative** — run across multiple sessions, each time fixing more flaws from the same report
+
+Requires a feature branch (not main/master) and an existing architecture report.
+
+**Why sequential?** Architecture fixes run one at a time, not in parallel. Fixing one flaw often resolves others (the skill checks for this after each fix), and that dependency can only be discovered sequentially. Parallel agents in worktrees would avoid stepping on each other's files, but merging refactored code back together creates conflicts — and resolving merge conflicts after structural changes is a reliable way to introduce new bugs.
+
 ---
 
 ### Degradation
 
+Code doesn't rot in one commit. It rots in a hundred small ones — each fine on its own, invisible in aggregate.
+
 #### `/paad:agentic-review [base-branch] [path]`
 
-As code grows, bugs hide. This skill hunts them — five specialist agents review your branch for logic errors, edge cases, security holes, and integration problems that a single-pass review would miss.
+As code grows, bugs hide. This skill hunts them — separate reviewers focus on logic, error handling, contracts, concurrency, and security so that a race condition doesn't slip past while everyone's looking at input validation.
 
 - **Arguments:** `/paad:agentic-review` (diff against `main`) or `/paad:agentic-review develop` (diff against `develop`) or `/paad:agentic-review main src/auth/` (scoped to a directory)
-- **5 specialist agents** run in parallel: Logic & Correctness, Error Handling & Edge Cases, Contract & Integration, Concurrency & State, Security
-- **Verification phase** filters false positives and deduplicates findings across specialists
+- **Parallel review** — all five specialists examine your branch simultaneously, then findings are verified against actual code and deduplicated
 - **Severity ranking**: Critical / Important / Suggestion
 - **Plan alignment** (conditional): if design docs are found, checks implementation against the plan
 - **Report** written to `paad/code-reviews/`
@@ -162,18 +178,13 @@ Requires a feature branch (not main/master) with committed changes.
 
 #### `/paad:agentic-a11y [path]`
 
-Accessibility barriers are a form of degradation that's invisible to most developers. This skill catches them — running five specialist agents across your codebase to find real barriers organized by who they affect.
+Accessibility barriers are a form of degradation that's invisible to most developers. This skill catches them — organized by *who is affected*, not by which WCAG criterion you violated.
 
 Supports **web, iOS, Android, React Native, Flutter, desktop, CLI, and games**. Evaluates against WCAG 2.2 AA (applied via WCAG2ICT for non-web platforms, with AAA noted as bonus recommendations).
 
 - **Arguments:** `/paad:agentic-a11y` (full repo) or `/paad:agentic-a11y src/components/` (scoped to a directory or file)
 - **Automatic platform detection** — identifies the project's platform(s) and adapts all checks accordingly
-- **5 specialist agents** run in parallel, each focused on a different disability category:
-  - **Screen Reader & Assistive Tech** — platform-appropriate semantics (ARIA for web, UIAccessibility for iOS, AccessibilityNodeInfo for Android, Semantics for Flutter, etc.)
-  - **Visual & Color** — contrast ratios, color-only information, text scaling/Dynamic Type, magnification, colorblind modes
-  - **Keyboard & Motor** — keyboard/switch/sip-and-puff operability, target sizes, remappable controls, gesture alternatives
-  - **Cognitive & Learning** — consistent navigation, error recovery, clear language, accessible authentication, predictable behavior
-  - **Multimedia & Temporal** — captions, transcripts, reduced-motion preferences, flash thresholds, auto-play controls
+- **Specialists by disability category** — screen reader users, visual/color, keyboard/motor, cognitive, and multimedia each get a dedicated reviewer rather than one generalist trying to cover everything
 - **Platform-specific agent** (conditional): dispatched for framework-specific pitfalls (React, Vue, SwiftUI, Jetpack Compose, Flutter, Unity, etc.)
 - **Verification phase** confirms barriers exist and aren't handled by the platform, framework, or component library
 - **WCAG conformance checklist** plus platform-specific guidelines (Apple HIG, Material Design, Xbox Accessibility Guidelines)
@@ -220,12 +231,39 @@ Then invoke skills with `/paad:help` to see all available skills, or try `/paad:
 
 After making changes, run `/reload-plugins` inside Claude Code to pick up updates without restarting.
 
-### Validate
+### Testing
+
+Run all checks with:
 
 ```bash
-claude plugin validate .                  # validate marketplace
-claude plugin validate ./plugins/paad     # validate plugin
+make test
 ```
+
+This validates the marketplace and plugin structure, then runs consistency checks (version sync, digraph presence, help/README coverage, frontmatter validity). See all available targets with `make help`.
+
+Individual checks can be run separately:
+
+```bash
+make check-versions     # marketplace.json ↔ plugin.json version sync
+make check-digraphs     # every skill (except help) has a digraph
+make check-help         # every skill is documented in paad:help
+make check-readme       # every skill is documented in README.md
+make check-frontmatter  # SKILL.md frontmatter is valid, folder name matches
+make validate           # claude plugin validate on marketplace + plugins
+```
+
+## Contributing
+
+1. Fork the repo and create a feature branch
+2. Make your changes — see `CLAUDE.md` for conventions on adding/modifying skills
+3. Run `make test` to verify everything passes
+4. Open a pull request
+
+Key rules from `CLAUDE.md`:
+- Every skill (except `help`) must include a graphviz digraph covering its decision points
+- Skill folder names must match the `name` field in `SKILL.md` frontmatter
+- Bump the version in both `plugin.json` and `marketplace.json`
+- Update `README.md`, `paad:help`, and `CLAUDE.md` when adding or changing skills
 
 ## License
 

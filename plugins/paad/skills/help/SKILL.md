@@ -32,9 +32,10 @@ Available skills:
 
   /paad:agentic-a11y [path]                  Accessibility audit (web, mobile, desktop, CLI, games)
   /paad:agentic-architecture [path...]       Multi-agent architecture analysis (strengths & flaws)
+  /paad:fix-architecture [report]            Fix architectural flaws from an analysis report
   /paad:agentic-review [base-branch] [path]  Multi-agent code review of current branch (bug hunting)
   /paad:alignment [files...]                 Requirements-to-tasks alignment + TDD rewrite
-  /paad:makefile                                 Create or update a Makefile with standard targets
+  /paad:makefile                             Create or update a Makefile with standard targets
   /paad:pushback [spec-file]                 Spec/PRD critic (finds issues before you build)
   /paad:vibe [task description]              Safe vibe coding with TDD guardrails
 
@@ -110,6 +111,49 @@ What it does:
      - Coverage checklist (every category: observed / not observed / N/A)
      - Hotspots (top 3 files/directories to review)
      - Next questions (max 5, no solutions)
+
+Best used in a fresh session — consumes significant context.
+```
+
+### fix-architecture
+
+```
+/paad:fix-architecture [report]
+
+Guided fixing of architectural flaws from an agentic-architecture report.
+Test-first workflow with developer approval at every step.
+
+Output: Updates the report in paad/architecture-reviews/ with fix status
+
+Arguments:
+  /paad:fix-architecture                         Find most recent report
+  /paad:fix-architecture path/to/report.md       Use a specific report
+
+Requirements:
+  - Must be on a feature branch (not main/master/trunk)
+  - An architecture report must exist (run /paad:agentic-architecture first)
+
+What it does:
+  1. Pre-flight: branch check, report staleness, test infrastructure,
+     baseline test run
+  2. Developer conversation:
+     - Solo or team? (affects batch size recommendations)
+     - Auto-commit or manual review?
+     - Flaw triage: high-impact, quick wins, or specific F-IDs
+     - Plan confirmation before any code is touched
+  3. For each selected flaw:
+     - Validates the flaw still exists (checks code and git history)
+     - Assesses test coverage, writes safety-net tests if needed
+     - Proposes fix options with tradeoffs (recommended option first)
+     - Executes with red/green/refactor
+     - Handles test failures (distinguishes structural vs behavioral)
+     - Commits (one per fix) and updates the report
+     - Checks if the fix resolved other flaws too
+  4. Post-session summary with remaining flaw count
+
+Status tracking in the report:
+  Fixed | Won't fix | Partially fixed | Skipped |
+  Fixed (pre-existing) | Attempted, reverted
 
 Best used in a fresh session — consumes significant context.
 ```
