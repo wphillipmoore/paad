@@ -19,7 +19,7 @@ Most AI coding assistants have the same four problems. **PAAD** addresses each o
 | **A**rchitecture | Your architecture is a house of cards. AI's solution? More cards. Taller. | Partially solved |
 | **D**egradation | Death by a thousand commits. Each change is fine. Together they're a security hole, a race condition, and a mystery bug that only happens on Tuesdays. | Partially solved |
 
-PAAD is a system of AI agent skills—originally built as a [Claude Code plugin](https://code.claude.com/docs/en/plugin-marketplaces) that gives your assistant the tools to catch these problems before they compound. It now supports **Claude Code**, **Cursor**, **Kiro**, and **Antigravity**.
+PAAD is a system of AI agent skills—originally built as a [Claude Code plugin](https://code.claude.com/docs/en/plugin-marketplaces) that gives your assistant the tools to catch these problems before they compound. It supports **Claude Code** natively, with **experimental** support for **Cursor**, **Kiro**, and **Antigravity**.
 
 **WARNING**: PAAD is brutally honest. It will tell you when your spec is flawed, your plan is misaligned, your architecture has problems, or your code has bugs. If you don't want to hear that, don't install PAAD.
 
@@ -83,7 +83,7 @@ Add to your project's `.claude/settings.json` so teammates are automatically pro
 
 You can invoke skills explicitly with `/paad:pushback`, `/paad:alignment`, etc. But Claude Code also recognizes skill names in natural language — saying "I want you to pushback on this design" or "run an architecture review" will trigger the corresponding skill. The `/paad:` slash command forces invocation when you want to be certain the skill runs.
 
-### Cursor
+### Cursor (experimental)
 
 PAAD skills use the same `SKILL.md` format that [Cursor skills](https://cursor.com/docs/skills) expect. Copy the pre-converted skills into your project:
 
@@ -96,13 +96,20 @@ mkdir -p .cursor/skills
 cp -r kiro_and_antigravity/skills/.kiro/skills/pushback .cursor/skills/
 ```
 
-### Kiro & Antigravity
+### Kiro (experimental)
 
-PAAD provides pre-converted versions of the skills for both Kiro and Antigravity.
+Copy the pre-converted skills into your project:
 
-1. Create a `.kiro/skills/` and/or `.agent/skills/` directory in your project root.
-2. Copy the desired skills from the `kiro_and_antigravity/skills/` directory in this repo.
-3. **Note**: Antigravity skills function as wrappers. You MUST also copy the corresponding Kiro skill to your project's `.kiro/skills/` directory, as the Antigravity skill references it.
+1. Create a `.kiro/skills/` directory in your project root.
+2. Copy the desired skill folders from `kiro_and_antigravity/skills/.kiro/skills/` in this repo into `.kiro/skills/`.
+
+### Antigravity (experimental)
+
+Antigravity skills function as wrappers that reference Kiro skill files. You need both:
+
+1. Create `.kiro/skills/` and `.agent/skills/` directories in your project root.
+2. Copy the desired skill folders from `kiro_and_antigravity/skills/.kiro/skills/` into `.kiro/skills/`.
+3. Copy the corresponding wrappers from `kiro_and_antigravity/skills/.agent/skills/` into `.agent/skills/`.
 
 ### Using skills outside Claude Code
 
