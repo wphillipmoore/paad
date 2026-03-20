@@ -7,6 +7,51 @@ description: Safe vibe coding with TDD guardrails — for small fixes and quick 
 
 Quick fixes and small changes with guardrails. You get the speed of vibe coding without the recklessness — mandatory TDD, architecture awareness, and reusable component detection.
 
+```dot
+digraph vibe {
+  "Task clear?" [shape=diamond];
+  "Test infrastructure?" [shape=diamond];
+  "Scope: how many files?" [shape=diamond];
+  "Architecture smell?" [shape=diamond];
+  "Reusable components found?" [shape=diamond];
+  "RED: test result?" [shape=diamond];
+
+  "Ask or clarify" [shape=box];
+  "ASK: set up tests or skip TDD?" [shape=box];
+  "WARN: may be bigger than a vibe task" [shape=box];
+  "STOP: investigate deeper issues" [shape=box, style=bold];
+  "Recommend using existing code" [shape=box];
+  "STOP: feature may exist or test is wrong" [shape=box, style=bold];
+  "STOP: unexpected failure, discuss" [shape=box, style=bold];
+  "Proceed to GREEN" [shape=box];
+  "Run pre-flight checks" [shape=box];
+
+  "Task clear?" -> "Run pre-flight checks" [label="yes"];
+  "Task clear?" -> "Ask or clarify" [label="no"];
+  "Ask or clarify" -> "Task clear?";
+
+  "Run pre-flight checks" -> "Test infrastructure?";
+  "Test infrastructure?" -> "Scope: how many files?" [label="yes"];
+  "Test infrastructure?" -> "ASK: set up tests or skip TDD?" [label="no"];
+  "ASK: set up tests or skip TDD?" -> "Scope: how many files?";
+
+  "Scope: how many files?" -> "Architecture smell?" [label="1-3 files"];
+  "Scope: how many files?" -> "WARN: may be bigger than a vibe task" [label="4+ files"];
+  "WARN: may be bigger than a vibe task" -> "Architecture smell?";
+
+  "Architecture smell?" -> "STOP: investigate deeper issues" [label="simple task, complex impl"];
+  "Architecture smell?" -> "Reusable components found?" [label="no smell"];
+
+  "Reusable components found?" -> "Recommend using existing code" [label="yes"];
+  "Reusable components found?" -> "RED: test result?" [label="no"];
+  "Recommend using existing code" -> "RED: test result?";
+
+  "RED: test result?" -> "STOP: feature may exist or test is wrong" [label="passes unexpectedly"];
+  "RED: test result?" -> "STOP: unexpected failure, discuss" [label="fails unexpectedly"];
+  "RED: test result?" -> "Proceed to GREEN" [label="fails as expected"];
+}
+```
+
 ## Step 1: Understand the Task
 
 If no `$ARGUMENTS` provided, ask: "What needs fixing or changing?"
