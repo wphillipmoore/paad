@@ -85,31 +85,61 @@ You can invoke skills explicitly with `/paad:pushback`, `/paad:alignment`, etc. 
 
 ### Cursor (experimental)
 
-PAAD skills use the same `SKILL.md` format that [Cursor skills](https://cursor.com/docs/skills) expect. Copy the pre-converted skills into your project:
+PAAD skills use the same `SKILL.md` format that [Cursor skills](https://cursor.com/docs/skills) expect.
 
-1. Create a `.cursor/skills/` directory in your project root.
-2. Copy the desired skill folders from `kiro_and_antigravity/skills/.kiro/skills/` in this repo into `.cursor/skills/`.
-
-For example, to add the pushback skill:
+All skills (bash/zsh):
 ```bash
-mkdir -p .cursor/skills
+cp -r kiro_and_antigravity/skills/.kiro/skills/* .cursor/skills/
+```
+
+All skills (Windows):
+```powershell
+xcopy kiro_and_antigravity\skills\.kiro\skills\* .cursor\skills\ /E /I
+```
+
+One skill (e.g., pushback):
+```bash
 cp -r kiro_and_antigravity/skills/.kiro/skills/pushback .cursor/skills/
 ```
 
 ### Kiro (experimental)
 
-Copy the pre-converted skills into your project:
+All skills (bash/zsh):
+```bash
+cp -r kiro_and_antigravity/skills/.kiro/skills/* .kiro/skills/
+```
 
-1. Create a `.kiro/skills/` directory in your project root.
-2. Copy the desired skill folders from `kiro_and_antigravity/skills/.kiro/skills/` in this repo into `.kiro/skills/`.
+All skills (Windows):
+```powershell
+xcopy kiro_and_antigravity\skills\.kiro\skills\* .kiro\skills\ /E /I
+```
+
+One skill (e.g., pushback):
+```bash
+cp -r kiro_and_antigravity/skills/.kiro/skills/pushback .kiro/skills/
+```
 
 ### Antigravity (experimental)
 
 Antigravity skills function as wrappers that reference Kiro skill files. You need both:
 
-1. Create `.kiro/skills/` and `.agent/skills/` directories in your project root.
-2. Copy the desired skill folders from `kiro_and_antigravity/skills/.kiro/skills/` into `.kiro/skills/`.
-3. Copy the corresponding wrappers from `kiro_and_antigravity/skills/.agent/skills/` into `.agent/skills/`.
+All skills (bash/zsh):
+```bash
+cp -r kiro_and_antigravity/skills/.kiro/skills/* .kiro/skills/
+cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/
+```
+
+All skills (Windows):
+```powershell
+xcopy kiro_and_antigravity\skills\.kiro\skills\* .kiro\skills\ /E /I
+xcopy kiro_and_antigravity\skills\.agent\skills\* .agent\skills\ /E /I
+```
+
+One skill (e.g., pushback):
+```bash
+cp -r kiro_and_antigravity/skills/.kiro/skills/pushback .kiro/skills/
+cp -r kiro_and_antigravity/skills/.agent/skills/pushback .agent/skills/
+```
 
 ### Using skills outside Claude Code
 
