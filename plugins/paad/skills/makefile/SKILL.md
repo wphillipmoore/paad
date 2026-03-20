@@ -11,12 +11,29 @@ Creates or updates a project Makefile with standard targets. **Never modifies an
 
 ## Process
 
+```dot
+digraph makefile_flow {
+    "Detect stack" -> "Makefile exists?";
+    "Makefile exists?" -> "Create from scratch" [label="no"];
+    "Makefile exists?" -> "Identify missing targets" [label="yes"];
+    "Create from scratch" -> "Include all required targets";
+    "Include all required targets" -> "Done";
+    "Identify missing targets" -> "Add new targets";
+    "Add new targets" -> "Existing target needs change?";
+    "Existing target needs change?" -> "Done" [label="no"];
+    "Existing target needs change?" -> "STOP: ask user for approval" [label="yes"];
+    "STOP: ask user for approval" -> "Approved?" [shape=diamond];
+    "Approved?" -> "Apply change" [label="yes"];
+    "Approved?" -> "Skip change" [label="no"];
+    "Apply change" -> "Done";
+    "Skip change" -> "Done";
+}
 ```
+
 1. Detect stack (read CLAUDE.md, AGENTS.md, README, package.json, pyproject.toml, Cargo.toml, go.mod, etc.)
 2. Check if Makefile exists
 3. Creating → build from scratch with all required targets mapped to detected stack
 4. Updating → add missing targets; STOP and ask before changing any existing one
-```
 
 ## Stack Detection
 
