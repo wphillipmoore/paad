@@ -4,9 +4,9 @@
   <img src="images/paad.png" alt="PAAD — Slaying the Four Horsemen of the AIpocalypse: Pushback, Alignment, Architecture, Degradation" width="600">
 </p>
 
-The best software developers are like AI in the sense that they're not perfect. Those developers write tests for their code, they request code review, CI/CD pipelines catch issues, QA also checks for problems, UAT checks for problems. And finally, Incident Response teams are there to clean up the mess when all of those layers of defense-in-depth fail.
+Good developers don't ship code without tests, reviews, CI/CD, QA, and incident response. Layer after layer of defense-in-depth, because no one gets it right the first time.
 
-We keep building AI tools and processes in hopes of improving AI. This is good, but we also need to provide that defense-in-depth. Welcome to PAAD.
+AI coding assistants don't have any of that. They get it wrong and ship it anyway. PAAD adds the defense-in-depth.
 
 ---
 
@@ -19,7 +19,7 @@ Most AI coding assistants have the same four problems. **PAAD** addresses each o
 | **A**rchitecture | Your architecture is a house of cards. AI's solution? More cards. Taller. | Partially solved |
 | **D**egradation | Death by a thousand commits. Each change is fine. Together they're a security hole, a race condition, and a mystery bug that only happens on Tuesdays. | Partially solved |
 
-PAAD is a system of AI agent skills—originally built as a [Claude Code plugin](https://code.claude.com/docs/en/plugin-marketplaces) that gives your assistant the tools to catch these problems before they compound. It supports **Claude Code** natively, with **experimental** support for **Cursor**, **Kiro**, and **Antigravity**.
+PAAD is a system of AI agent skills that gives your coding assistant the tools to catch these problems before they compound. It supports **Claude Code** natively, with **experimental** support for **Cursor**, **Kiro**, and **Antigravity**.
 
 **WARNING**: PAAD is brutally honest. It will tell you when your spec is flawed, your plan is misaligned, your architecture has problems, or your code has bugs. If you don't want to hear that, don't install PAAD.
 
@@ -147,7 +147,7 @@ In Cursor, Kiro, and Antigravity, skills are automatically recognized by your as
 
 ## Available Skills
 
-Each skill targets one of the four problems. Run them before, during, or after coding — they all work from the command line inside Claude Code.
+Each skill targets one of the four problems. Run them before, during, or after coding.
 
 ---
 
