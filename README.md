@@ -19,7 +19,7 @@ Most AI coding assistants have the same four problems. **PAAD** addresses each o
 | **A**rchitecture | Your architecture is a house of cards. AI's solution? More cards. Taller. | Partially solved |
 | **D**egradation | Death by a thousand commits. Each change is fine. Together they're a security hole, a race condition, and a mystery bug that only happens on Tuesdays. | Partially solved |
 
-PAAD is a system of AI agent skills—originally built as a [Claude Code plugin](https://code.claude.com/docs/en/plugin-marketplaces) that gives your assistant the tools to catch these problems before they compound. It now supports **Claude Code**, **Kiro**, and **Antigravity**.
+PAAD is a system of AI agent skills—originally built as a [Claude Code plugin](https://code.claude.com/docs/en/plugin-marketplaces) that gives your assistant the tools to catch these problems before they compound. It now supports **Claude Code**, **Cursor**, **Kiro**, and **Antigravity**.
 
 **WARNING**: PAAD is brutally honest. It will tell you when your spec is flawed, your plan is misaligned, your architecture has problems, or your code has bugs. If you don't want to hear that, don't install PAAD.
 
@@ -56,13 +56,13 @@ Also ...
 /plugin marketplace add Ovid/paad
 ```
 
-### Install the plugin
+#### Install the plugin
 
 ```
 /plugin install paad@paad
 ```
 
-### Team setup (optional)
+#### Team setup (optional)
 
 Add to your project's `.claude/settings.json` so teammates are automatically prompted:
 
@@ -79,6 +79,23 @@ Add to your project's `.claude/settings.json` so teammates are automatically pro
 }
 ```
 
+#### Invoking skills
+
+You can invoke skills explicitly with `/paad:pushback`, `/paad:alignment`, etc. But Claude Code also recognizes skill names in natural language — saying "I want you to pushback on this design" or "run an architecture review" will trigger the corresponding skill. The `/paad:` slash command forces invocation when you want to be certain the skill runs.
+
+### Cursor
+
+PAAD skills use the same `SKILL.md` format that [Cursor skills](https://cursor.com/docs/skills) expect. Copy the pre-converted skills into your project:
+
+1. Create a `.cursor/skills/` directory in your project root.
+2. Copy the desired skill folders from `kiro_and_antigravity/skills/.kiro/skills/` in this repo into `.cursor/skills/`.
+
+For example, to add the pushback skill:
+```bash
+mkdir -p .cursor/skills
+cp -r kiro_and_antigravity/skills/.kiro/skills/pushback .cursor/skills/
+```
+
 ### Kiro & Antigravity
 
 PAAD provides pre-converted versions of the skills for both Kiro and Antigravity.
@@ -87,9 +104,9 @@ PAAD provides pre-converted versions of the skills for both Kiro and Antigravity
 2. Copy the desired skills from the `kiro_and_antigravity/skills/` directory in this repo.
 3. **Note**: Antigravity skills function as wrappers. You MUST also copy the corresponding Kiro skill to your project's `.kiro/skills/` directory, as the Antigravity skill references it.
 
-### Using Skills with Kiro & Antigravity
+### Using skills outside Claude Code
 
-In Kiro and Antigravity, skills are automatically recognized by your assistant. You don't need a specific prefix; simply ask your assistant to perform the task (e.g., "Run a pushback review on this spec" or "Analyze the architecture of this module"). The assistant will follow the checklists and procedures defined in the skill files.
+In Cursor, Kiro, and Antigravity, skills are automatically recognized by your assistant. You don't need a specific prefix; simply ask your assistant to perform the task (e.g., "Run a pushback review on this spec" or "Analyze the architecture of this module"). The assistant will follow the checklists and procedures defined in the skill files.
 
 ## Available Skills
 
