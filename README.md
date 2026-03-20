@@ -4,11 +4,17 @@
   <img src="images/paad.png" alt="PAAD — Slaying the Four Horsemen of the AIpocalypse: Pushback, Alignment, Architecture, Degradation" width="600">
 </p>
 
+The best software developers are like AI in the sense that they're not perfect. Those developers write tests for their code, they request code review, CI/CD pipelines catch issues, QA also checks for problems, UAT checks for problems. And finally, Incident Response teams are there to clean up the mess when all of those layers of defense-in-depth fail.
+
+We keep building AI tools and processes in hopes of improving AI. This is good, but we also need to provide that defense-in-depth. Welcome to PAAD.
+
+---
+
 Most AI coding assistants have the same four problems. **PAAD** addresses each one. See also, [this horrendously long explanation](https://curtispoe.org/articles/why-i-am-no-longer-reading-the-ais-code.html).
 
 | Problem | What goes wrong | Status |
 |---------|----------------|--------|
-| **P**ushback | AI is a smarmy little git. Push back? No. Push to production? Absolutely. Push the consequences to Future You? Every time. | Largely solved |
+| **P**ushback | AI is a smarmy little git. Push back? No. Push to production? Absolutely. Push problems to Future You? Every time. | Largely solved |
 | **A**lignment | AI hears "add a button" and delivers a button, a modal, a notification system, and a config page. The button doesn't work. | Largely solved |
 | **A**rchitecture | Your architecture is a house of cards. AI's solution? More cards. Taller. | Partially solved |
 | **D**egradation | Death by a thousand commits. Each change is fine. Together they're a security hole, a race condition, and a mystery bug that only happens on Tuesdays. | Partially solved |
