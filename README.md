@@ -1,7 +1,7 @@
 # PAAD — Slaying the Four Horsemen of the AIpocalypse
 
 <p align="center">
-  <img src="images/paad.png" alt="PAAD — Slaying the Four Horsemen of the AIpocalypse: Pushback, Alignment, Architecture, Degradation" width="600">
+  <img src="images/paad.png" alt="PAAD — Slaying the Four Horsemen of the AIpocalypse: Pushback, Alignment, Architecture, Discipline" width="600">
 </p>
 
 Good developers don't ship code without tests, reviews, CI/CD, QA, and incident response. Layer after layer of defense-in-depth, because no one gets it right the first time.
@@ -17,7 +17,7 @@ Most AI coding assistants have the same four problems. **PAAD** addresses each o
 | **P**ushback | AI is a smarmy little git. Push back? No. Push to production? Absolutely. Push problems to Future You? Every time. | Largely solved |
 | **A**lignment | AI hears "add a button" and delivers a button, a modal, a notification system, and a config page. The button doesn't work. | Largely solved |
 | **A**rchitecture | Your architecture is a house of cards. AI's solution? More cards. Taller. | Partially solved |
-| **D**egradation | Death by a thousand commits. Each change is fine. Together they're a security hole, a race condition, and a mystery bug that only happens on Tuesdays. | Partially solved |
+| **D**iscipline | PAA works — when you actually use it. Skip pushback, ignore alignment, defer the review, and every problem comes back worse. The process requires discipline to deliver results. | It's on you |
 
 PAAD is a system of AI agent skills that gives your coding assistant the tools to catch these problems before they compound. It supports **Claude Code** natively, with **experimental** support for **Cursor**, **Kiro**, and **Antigravity**.
 
@@ -214,13 +214,13 @@ Requires a feature branch (not main/master) and an existing architecture report.
 
 ---
 
-### Degradation
+### Discipline
 
 Code doesn't rot in one commit. It rots in a hundred small ones — each fine on its own, invisible in aggregate.
 
 #### `/paad:agentic-review [base-branch] [path]`
 
-As code grows, bugs hide. This skill hunts them — separate reviewers focus on logic, error handling, contracts, concurrency, and security so that a race condition doesn't slip past while everyone's looking at input validation.
+Discipline means reviewing before merging, every time. Five specialist agents examine your branch for logic errors, edge cases, security holes, and integration problems that a single-pass review would miss.
 
 - **Arguments:** `/paad:agentic-review` (diff against `main`) or `/paad:agentic-review develop` (diff against `develop`) or `/paad:agentic-review main src/auth/` (scoped to a directory)
 - **Parallel review** — all five specialists examine your branch simultaneously, then findings are verified against actual code and deduplicated
@@ -232,7 +232,7 @@ Requires a feature branch (not main/master) with committed changes.
 
 #### `/paad:agentic-a11y [path]`
 
-Accessibility barriers are a form of degradation that's invisible to most developers. This skill catches them — organized by *who is affected*, not by which WCAG criterion you violated.
+Discipline means accessibility isn't an afterthought. Five specialist agents scan your codebase for real barriers, organized by who they affect.
 
 Supports **web, iOS, Android, React Native, Flutter, desktop, CLI, and games**. Evaluates against WCAG 2.2 AA (applied via WCAG2ICT for non-web platforms, with AAA noted as bonus recommendations).
 
