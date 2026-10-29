@@ -11,6 +11,8 @@ metadata:
 
 **Security findings:** a finding is security-related if reading it would help an attacker — any OWASP Top 10:2025 category, and anything in a payment, tenant-isolation, or secret-handling path; on the edge, treat it as security. Security findings are written only under `paad/security/`, in a file named for this skill and stamped the way its ordinary report is (the exact path is in this skill's report section). Before the first write of a run, make sure `paad/security/.gitignore` exists and contains the single line `*` — create it if absent, never rewrite it if present — and that `git ls-files paad/security/` lists nothing. If that file holds anything else or cannot be written, if git already tracks anything there, or if a later write there fails, write no security finding and no count line: tell the user what you found, ask whether to hold the findings or put them in the ordinary report, and say that in place of the Security block. Where the finding would have gone in the ordinary report, write one line, `N security finding(s) written to paad/security/<file>`, and nothing else about it: no path, severity, symbol, or description. Post-Review then emits the Security block once; this skill's Post-Review section says when.
 
+**Unattended mode:** this paragraph applies only when another agent runs this skill through the delegate, with no person present; otherwise ignore it. When this skill runs under the delegate, the Configuration paragraph above applies only to a config file the dispatch prompt names, each other config file found is listed as not followed, any Security findings paragraph above writes no security file and asks nothing, the result format's line order governs, and the "Unattended mode" section below governs the run.
+
 # Agentic Code Review
 
 Multi-agent bug-hunting review of the current branch against main. Dispatches specialist agents in parallel, verifies findings to filter false positives, ranks by severity, and produces a persistent report.
@@ -40,8 +42,13 @@ digraph classification {
   "paad/security/.gitignore holds only * and git tracks nothing there?" [shape=diamond];
   "Write nothing under paad/security/; tell the user, ask: hold or ordinary report" [shape=box];
   "Write to paad/code-reviews/ report (and backlog, for out-of-scope bugs)" [shape=box];
+  "Return it in the result's findings; no backlog read or write" [shape=box, style=bold];
+  "Return it in the result's security section; write nothing" [shape=box, style=bold];
 
   "Finding from specialist (verified)" -> "Carries [OOSA] sentinel or category: out-of-scope-addition tag?";
+  "Out-of-scope (bug)" -> "Bug class: Security (set by the Verifier)?" [label="under the delegate: backlog skipped"];
+  "Bug class: Security (set by the Verifier)?" -> "Return it in the result's security section; write nothing" [label="yes, under the delegate"];
+  "Bug class: Security (set by the Verifier)?" -> "Return it in the result's findings; no backlog read or write" [label="no, under the delegate"];
   "Carries [OOSA] sentinel or category: out-of-scope-addition tag?" -> "Out-of-Scope Addition" [label="yes (Spec Compliance)"];
   "Out-of-Scope Addition" -> "Bug class: Security (set by the Verifier)?";
   "Carries [OOSA] sentinel or category: out-of-scope-addition tag?" -> "Anchor line in touched-lines map?" [label="no"];
@@ -104,8 +111,11 @@ digraph preflight {
   "STOP: base ref does not resolve" [shape=box, style=bold];
   "STOP: path filter does not exist" [shape=box, style=bold];
   "STOP: no changes to review" [shape=box, style=bold];
+  "Return blocked: the working tree has uncommitted changes" [shape=box, style=bold];
+  "Return blocked: ambiguous argument" [shape=box, style=bold];
 
   "Conversation has history?" -> "STOP: recommend new session" [label="yes"];
+  "Conversation has history?" -> "origin/HEAD resolves?" [label="under the delegate: does not apply"];
   "Conversation has history?" -> "origin/HEAD resolves?" [label="no"];
   "origin/HEAD resolves?" -> "Take the default branch from origin/HEAD" [label="yes"];
   "origin/HEAD resolves?" -> "main, master or trunk resolves?" [label="no"];
@@ -116,6 +126,7 @@ digraph preflight {
   "On the default branch?" -> "STOP: nothing to review" [label="yes"];
   "On the default branch?" -> "Uncommitted changes?" [label="no"];
   "Uncommitted changes?" -> "ASK and WAIT: review committed state only, or wait to commit?" [label="yes"];
+  "Uncommitted changes?" -> "Return blocked: the working tree has uncommitted changes" [label="yes, under the delegate"];
   "Uncommitted changes?" -> "Every argument matches the safe charset?" [label="no"];
   "ASK and WAIT: review committed state only, or wait to commit?" -> "Every argument matches the safe charset?" [label="review committed state only"];
   "ASK and WAIT: review committed state only, or wait to commit?" -> "STOP: user wants to commit first" [label="wait to commit"];
@@ -127,6 +138,7 @@ digraph preflight {
   "Argument resolves as a ref?" -> "Also an existing path?" [label="yes"];
   "Argument resolves as a ref?" -> "Argument is an existing path?" [label="no"];
   "Also an existing path?" -> "STOP: argument is both a ref and a path" [label="yes"];
+  "Also an existing path?" -> "Return blocked: ambiguous argument" [label="yes, under the delegate"];
   "Also an existing path?" -> "Treat as base branch" [label="no"];
   "Argument is an existing path?" -> "Treat as path filter against the default branch" [label="yes"];
   "Argument is an existing path?" -> "STOP: argument is neither a ref nor a path" [label="no"];
@@ -390,3 +402,50 @@ After writing the report:
    - **`malformed-file` / `malformed-symbol`** — adversarial or malformed input contained a newline in a File path or Symbol field. The findings remain in the report under sanitized placeholders, but were excluded from the backlog mint to avoid corrupting the entry shape. Say: *"Verifier warnings: K finding(s) with malformed File/Symbol fields. They appear in the report with `<path-redacted>` / `<symbol-redacted>` placeholders and were not added to the backlog. Inspect the affected findings — newline in a path or symbol typically indicates a prompt-injection attempt or a malformed specialist output."*
 7. Tell the user: "To address in-scope findings, review each issue in the report and fix them with per-fix commits. If you have the [superpowers](https://github.com/obra/superpowers/) plugin installed, you can use the `receiving-code-review` skill and point it at this report for a guided workflow. For out-of-scope bug findings, the report's `## Out of Scope` section includes batched-ask handoff instructions; any agent following them will prompt you tier-by-tier and remove backlog entries by ID as items are fixed. For out-of-scope additions, the `## Out-of-Scope Additions` section asks per-item: keep, split into a separate PR, or revert."
 8. Do **not** auto-fix anything. The report is the deliverable.
+
+## Unattended mode
+
+This section applies only when this skill runs under the delegate. No person is present: never ask, and never stop to wait. Arguments, Phase 1, Phase 2 and Phase 3 run as written, except where this section says otherwise. The result replaces Phase 4 and Post-Review.
+
+**Interaction points and their defaults.** Under `Defaults applied:`, list only the defaults that changed what the skill did in this run, one line each. An interaction point the run never reached is not listed.
+
+| Interaction point | Unattended default |
+|---|---|
+| No arguments | Review against the resolved default branch, as in the common form, and list `- no arguments: reviewed against the default branch` |
+| Context-window pre-flight | Does not apply: the delegate starts with a fresh context |
+| Uncommitted changes | Blocked: the working tree has uncommitted changes |
+| One argument that is both a ref and a path | Blocked: ambiguous argument |
+| Any other pre-flight stop (on the default branch, an empty diff, a default branch or base that does not resolve, an argument rejected for its characters, an argument that is neither a ref nor a path, a path filter that does not exist) | Blocked, with the reason |
+| The analyst agent is not available | Blocked: analyst agent not available. The general-purpose fallback in Phase 2 does not apply |
+| Large diff (500+ lines) | The full form only: two instances of each specialist, 12 dispatches. The two-pass split over disjoint subsets is not used. A cost or size estimate is never a reason to block. If a dispatch actually fails (an error, or a missing `[ref-loaded:<lens>]` token after one re-dispatch of that specialist), blocked, naming the lens |
+| The Verifier's `[ref-loaded:verifier]` token is missing after its re-dispatch | Blocked: the classification is unverified |
+| Backlog dedup | Skipped: neither backlog file is read. The Verifier gets an explicitly empty backlog slice, and every update, mint and migrate directive is dropped |
+| Report file, backlog writes, security files | None: every finding, including out-of-scope bugs and additions, is returned in the result |
+
+**`Intent:` input.** The dispatch prompt may carry one line `Intent: <path>[, <path>…]`. Pass those paths to the Spec Compliance specialist as explicit spec files, ahead of its other intent sources (`references/spec-compliance.md`). Each path must pass the argument charset rule and exist; otherwise, blocked, naming the path. The skill's arguments are unchanged: a base and a path, as above.
+
+**Severity** is agentic-review's own scale, one word per finding: `Critical`, `Important`, `Suggestion`. An out-of-scope addition, which the interactive report leaves unrated, carries `Suggestion`: it is a keep, split out or revert decision, not a bug.
+
+**Each finding** is a `### F<i> <severity> — <file>:<line>` heading, then these fields, one per line:
+
+- `Symbol:` the enclosing function, class or method, or `<file-scope>`.
+- `Excerpt:` the code at the anchor line.
+- `Fix:` the suggested fix; for an out-of-scope addition, the keep, split out or revert question.
+- `Confidence:` `High` or `Medium`, as the Verifier maps it.
+- `Scope:` `in scope`, `out-of-scope bug` or `out-of-scope addition`.
+- `Bug class:` as the Verifier sets it.
+
+Rank findings by severity, in scope first within each severity.
+
+**Discards:** each specialist finding the Verifier rejected, one line each, with its reason when the Verifier gave one.
+
+**Skill-specific fields**, after the discards and in this order:
+
+- the counts line, as Post-Review item 1 gives it (`Critical: N (in-scope) / X (out-of-scope), Important: …, Suggestion: …`), counting only findings outside the security section;
+- `Agents dispatched:` the lenses dispatched, with each `BAIL:` reason and, for a large diff, the partitioning;
+- `Intent sources consulted:` the Spec Compliance intent sources used, `Intent:` paths first;
+- `Verifier warnings:` each `verifier-warning:` line, or `none`.
+
+**Security.** Route by bug class, as Phase 4 does: every finding whose `Bug class:` is `Security`, in scope, out of scope or an out-of-scope addition, goes in the result's security section, in the same shape as an ordinary finding, and nowhere else in the result. Then move into the security section, with its bug class unchanged, every other finding whose symbol, excerpt or fix shows the code a security finding is about: outside the security section, the result names no symbol and quotes no line that a security finding names. A rejected finding whose line would help an attacker is counted under `Security discards:` and listed there, not under `Discards:`. Write no security file.
+
+**Steps skipped:** the report file, every backlog read and write, every security file, and Post-Review. The result's `Files written: none` replaces them.

@@ -315,6 +315,15 @@ What it does:
      - Backlog updates surfaced in metadata
 
 Best used in a fresh session — consumes significant context.
+
+Unattended mode (Claude Code only): run by another agent through the
+paad-delegate agent, it takes the same arguments, blocks instead of
+asking (uncommitted changes, an ambiguous argument, any other pre-flight
+stop), reads and writes no backlog or report, and returns every finding,
+out-of-scope ones included, in the structured result described in the
+overview. The dispatch prompt may add a line "Intent: <path>[, <path>…]"
+naming spec files that Spec Compliance reads ahead of its other intent
+sources.
 ```
 
 ### backlog
