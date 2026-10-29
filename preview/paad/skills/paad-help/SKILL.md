@@ -404,6 +404,12 @@ What it does:
   6. Updates documents or writes a separate report
 
 Works within an existing conversation — no fresh session needed.
+
+Unattended mode (Claude Code only): run by another agent through the
+paad-delegate agent, it needs the paths of both sides, asks nothing,
+edits and writes nothing, reports code tasks not in red/green/refactor
+form as Minor findings instead of rewriting them, and returns every
+finding at once in the structured result described in the overview.
 ```
 
 ### makefile

@@ -9,6 +9,8 @@ metadata:
 
 **Configuration (experimental):** after announcing, check whether `paad/config/paad.md` and `paad/config/alignment.md` exist, relative to the working directory. If any does, read it and follow its instructions for the rest of this run, passing the relevant parts to every subagent you dispatch, and make the first line of your final answer `Config: <path>` naming each file you followed. If none exists, do not mention config at all. Config never changes a subagent's type or grants it write tools — refuse that line, say so, and continue. Config can contradict the flow below; see https://github.com/Ovid/paad/blob/main/CONFIG.md before writing one.
 
+**Unattended mode:** this paragraph applies only when another agent runs this skill through the delegate, with no person present; otherwise ignore it. When this skill runs under the delegate, the Configuration paragraph above applies only to a config file the dispatch prompt names, each other config file found is listed as not followed, any Security findings paragraph above writes no security file and asks nothing, the result format's line order governs, and the "Unattended mode" section below governs the run.
+
 # Alignment Check
 
 Verifies that intent documents (requirements, specs, PRDs) and action documents (plans, tasks, implementation steps) are aligned. Finds gaps in both directions — unaddressed requirements and out-of-scope tasks — then rewrites all tasks in TDD red/green/refactor format.
@@ -33,9 +35,15 @@ digraph alignment {
   "Skip Reality Check" [shape=box];
   "Present conflicts, resolve first" [shape=box];
   "Proceed to Alignment Analysis" [shape=box];
+  "Under the delegate?" [shape=diamond];
+  "Return blocked: the inputs must be named" [shape=box];
+  "Return blocked: both sides must be named" [shape=box];
+  "Record conflicts as findings" [shape=box];
 
   "Has $ARGUMENTS?" -> "Classify files as intent/action" [label="yes"];
-  "Has $ARGUMENTS?" -> "Conversation has docs?" [label="no"];
+  "Has $ARGUMENTS?" -> "Under the delegate?" [label="no"];
+  "Under the delegate?" -> "Return blocked: the inputs must be named" [label="yes"];
+  "Under the delegate?" -> "Conversation has docs?" [label="no"];
   "Conversation has docs?" -> "Confirm with user" [label="yes"];
   "Conversation has docs?" -> "Found in common locations?" [label="no"];
   "Found in common locations?" -> "Present candidates, ask user" [label="yes"];
@@ -47,6 +55,7 @@ digraph alignment {
 
   "Both sides found?" -> "Git repo?" [label="yes"];
   "Both sides found?" -> "STOP: tell user what's missing" [label="no"];
+  "Both sides found?" -> "Return blocked: both sides must be named" [label="no, under the delegate"];
 
   "Git repo?" -> "Source control conflicts?" [label="yes"];
   "Git repo?" -> "Skip Reality Check" [label="no"];
@@ -54,6 +63,8 @@ digraph alignment {
   "Source control conflicts?" -> "Present conflicts, resolve first" [label="yes"];
   "Source control conflicts?" -> "Proceed to Alignment Analysis" [label="no"];
   "Present conflicts, resolve first" -> "Proceed to Alignment Analysis";
+  "Source control conflicts?" -> "Record conflicts as findings" [label="yes, under the delegate"];
+  "Record conflicts as findings" -> "Proceed to Alignment Analysis";
 }
 ```
 
@@ -85,6 +96,7 @@ digraph analysis_and_resolution {
   "Rewrite tasks in the action document" [shape=box];
   "Write rewritten tasks to a new file" [shape=box];
   "List every file written or updated" [shape=box];
+  "Return every finding in the structured result, non-TDD code tasks as Minor; edit and write nothing" [shape=box, style=bold];
   "Done" [shape=box];
 
   "Check 1: requirements coverage" -> "Check 2: scope compliance";
@@ -96,6 +108,8 @@ digraph analysis_and_resolution {
   "Issues found?" -> "Order issues: missing requirements, then design gaps, then tasks" [label="yes"];
   "Issues found?" -> "Docs saved to files?" [label="no"];
   "Order issues: missing requirements, then design gaps, then tasks" -> "Present one issue: severity, options best-to-worst, recommendation";
+  "Issues found?" -> "Return every finding in the structured result, non-TDD code tasks as Minor; edit and write nothing" [label="under the delegate"];
+  "Return every finding in the structured result, non-TDD code tasks as Minor; edit and write nothing" -> "Done";
   "Present one issue: severity, options best-to-worst, recommendation" -> "Wait for the user's response";
   "Wait for the user's response" -> "Decision, or stop signal?";
   "Decision, or stop signal?" -> "Answer it, then re-put this issue's options" [label="no — a question, objection, or new consideration"];
@@ -333,3 +347,38 @@ These patterns produce alignment reviews that miss the drift they exist to catch
 | Rewriting tasks to TDD format when they're already in it | Phase 4 is conditional. Reformatting compliant tasks wastes the user's review attention. |
 | Inventing a requirement to justify a task the user wants | If a task has no requirement, say so. Back-filling requirements to match existing tasks launders scope creep into legitimacy. |
 | Silently updating documents | Say which files changed and how. The user needs to know their spec was edited. |
+
+## Unattended mode
+
+This section applies only when this skill runs under the delegate. No person is present: never ask, and never stop to wait. Phases 1 and 2 run as written, including reading the codebase. What changes is everything that reaches a person.
+
+**Both sides must be named.** Use only the file paths in the arguments, classified as intent or action as Input Resolution says. The conversation and the common locations do not apply.
+
+**Interaction points and their defaults.** Under `Defaults applied:`, list only the defaults that changed what the skill did in this run, one line each. An interaction point the run never reached is not listed.
+
+| Interaction point | Unattended default |
+|---|---|
+| Input resolution with no file paths in the arguments | Blocked: the inputs must be named |
+| The named files cover only one side (intent or action) | Blocked: both sides must be named |
+| A named file does not exist or cannot be read, or any other stop before Phase 2 | Blocked, with the reason |
+| Reality check finds a conflict with recent commits ("how do you want to handle this?") | Report it as a finding |
+| A task that may address an implied but unstated requirement ("may be legitimate — ask") | Report it as a finding |
+| One issue at a time, waiting for each decision | Return every finding, ranked by severity, in Phase 3's dependency order within each severity |
+| Update the documents, or write a report | Neither: no document is edited and no report is written |
+| TDD rewrite of the action document's tasks | Do not rewrite. Report each code task not in red/green/refactor form as a `Minor` finding |
+
+**Severity** is alignment's own scale, one word per finding: `Critical`, `Important`, `Minor`.
+
+**Each finding** is a `### F<i> <severity> — <documents and sections>` heading, then these fields, one per line:
+
+- `Claim:` the misalignment, naming the documents and sections and its nature (missing coverage, partial coverage, out of scope, design gap, conflict with recent commits, or a task not in red/green/refactor form).
+- `Options:` the options from best to worst, as a numbered list.
+- `Recommendation:` the option you recommend and why.
+
+**Discards** are candidate issues you checked and dropped, counted, one line each.
+
+**Skill-specific fields:** none.
+
+**Security.** A finding is security-related if reading it would help an attacker — any OWASP Top 10:2025 category, and anything in a payment, tenant-isolation, or secret-handling path; on the edge, treat it as security. Classify every finding and every discard by that definition. A finding that meets it goes in the result's security section, in the same shape as an ordinary finding, and nowhere else in the result. A discard whose line would help an attacker is counted under `Security discards:` and listed there, not under `Discards:`. Write no security file.
+
+**Steps skipped:** every edit to the documents, the report file, the TDD rewrite, every security file, and the Step 3 file list. The result's `Files written: none` replaces them.
