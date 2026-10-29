@@ -10,6 +10,13 @@ what a plugin user sees.
 
 ## [Unreleased]
 
+### Added
+- **Unattended mode (preview, Claude Code only):** a `paad-delegate` agent that another
+  agent dispatches by name to run one skill with no person present. It asks nothing, writes
+  nothing, follows only the config files the caller names, and returns one structured result
+  with security findings in a delimited section the caller keeps private. No skill supports it
+  yet; any skill returns a blocked result. `make test` gains `check-unattended`.
+
 ## [2.0.2] — 2026-10-22
 
 ### Fixed

@@ -115,6 +115,21 @@ them and remove the old directory. Bug class: Security entries in
 paad/code-reviews/backlog.md are copied across by /agentic-review; delete
 the committed copies (/backlog clean does it). History keeps what was
 committed either way, so rotate whatever it exposed.
+
+Unattended mode (Claude Code only): an agent, not a person, can run a skill
+that supports it by dispatching the paad-delegate agent by name, with a
+prompt that names the skill and its inputs. The run asks nothing, applies
+the skill's unattended defaults, writes no file, follows no paad/config/
+file the prompt does not name, and returns one structured result: an
+announce line, Config not followed, Status (complete or blocked: <reason>),
+Agent types dispatched, Defaults applied, the findings and discards, then a
+section between "=== paad security section ===" and "=== end paad security
+section ===", and "Files written: none". The security section holds details
+that would help an attacker: the calling agent must keep it out of every
+public record (issue comments, commit messages, PR text, handoff notes).
+Supported skills are listed in the paad-delegate agent; any other skill
+returns "blocked: skill does not support unattended mode" without running.
+Interactive runs are unchanged.
 ```
 
 ---
