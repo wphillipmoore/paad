@@ -11,6 +11,8 @@ metadata:
 
 **Security findings:** a finding is security-related if reading it would help an attacker — any OWASP Top 10:2025 category, and anything in a payment, tenant-isolation, or secret-handling path; on the edge, treat it as security. Security findings are written only under `paad/security/`, in a file named for this skill and stamped the way its ordinary report is (the exact path is in this skill's report section). Before the first write of a run, make sure `paad/security/.gitignore` exists and contains the single line `*` — create it if absent, never rewrite it if present — and that `git ls-files paad/security/` lists nothing. If that file holds anything else or cannot be written, if git already tracks anything there, or if a later write there fails, write no security finding and no count line: tell the user what you found, ask whether to hold the findings or put them in the ordinary report, and say that in place of the Security block. Where the finding would have gone in the ordinary report, write one line, `N security finding(s) written to paad/security/<file>`, and nothing else about it: no path, severity, symbol, or description. Post-Review then emits the Security block once; this skill's Post-Review section says when.
 
+**Unattended mode:** this paragraph applies only when another agent runs this skill through the delegate, with no person present; otherwise ignore it. When this skill runs under the delegate, the Configuration paragraph above applies only to a config file the dispatch prompt names, each other config file found is listed as not followed, any Security findings paragraph above writes no security file and asks nothing, the result format's line order governs, and the "Unattended mode" section below governs the run.
+
 # Spec Pushback
 
 Critically reviews a spec, PRD, requirements document, or design plan before work begins. Checks source control for conflicts with reality, then walks through issues one at a time in severity order so you can fix what matters most.
@@ -33,9 +35,14 @@ digraph pushback {
   "ASK: what document to review?" [shape=box];
   "Present conflicts, resolve first" [shape=box];
   "Proceed to Scope Shape" [shape=box];
+  "Under the delegate?" [shape=diamond];
+  "Return blocked: the inputs must be named" [shape=box];
+  "Record conflicts as findings" [shape=box];
 
   "Has $ARGUMENTS?" -> "Use that file" [label="yes"];
-  "Has $ARGUMENTS?" -> "Conversation has spec?" [label="no"];
+  "Has $ARGUMENTS?" -> "Under the delegate?" [label="no"];
+  "Under the delegate?" -> "Return blocked: the inputs must be named" [label="yes"];
+  "Under the delegate?" -> "Conversation has spec?" [label="no"];
   "Conversation has spec?" -> "Confirm with user" [label="yes"];
   "Conversation has spec?" -> "Found in common locations?" [label="no"];
   "Found in common locations?" -> "Present candidates, ask user" [label="yes"];
@@ -49,6 +56,8 @@ digraph pushback {
   "Git repo?" -> "Source control conflicts?" [label="yes"];
   "Git repo?" -> "Proceed to Scope Shape" [label="no"];
   "Source control conflicts?" -> "Present conflicts, resolve first" [label="yes"];
+  "Source control conflicts?" -> "Record conflicts as findings" [label="yes, under the delegate"];
+  "Record conflicts as findings" -> "Proceed to Scope Shape";
   "Source control conflicts?" -> "Proceed to Scope Shape" [label="no"];
   "Present conflicts, resolve first" -> "Proceed to Scope Shape";
 }
@@ -76,6 +85,7 @@ digraph scope_critique_resolution {
   "Identify groups, recommend splitting, ask" [shape=box];
   "Continue reviewing the remaining spec" [shape=box];
   "Note it as a scope concern, review as-is" [shape=box];
+  "Record the bundling as a finding, review as-is" [shape=box];
   "Suggest the split — what each piece delivers alone" [shape=box];
   "Flag the size, explain why splitting isn't practical" [shape=box];
   "Say nothing about size" [shape=box];
@@ -94,12 +104,15 @@ digraph scope_critique_resolution {
   "Write paad/pushback-reviews/<date>-<spec>-pushback.md" [shape=box];
   "Skip the report — conversation and diff carry it" [shape=box];
   "List every file written or updated" [shape=box];
+  "Return every finding in the structured result; edit and write nothing" [shape=box, style=bold];
   "Done" [shape=box];
 
   "Proceed to Scope Shape" -> "Unrelated features bundled?";
 
   "Unrelated features bundled?" -> "Identify groups, recommend splitting, ask" [label="yes"];
   "Unrelated features bundled?" -> "Spec large?" [label="no"];
+  "Unrelated features bundled?" -> "Record the bundling as a finding, review as-is" [label="yes, under the delegate"];
+  "Record the bundling as a finding, review as-is" -> "Spec large?";
   "Identify groups, recommend splitting, ask" -> "User splits them out?";
   "User splits them out?" -> "Continue reviewing the remaining spec" [label="yes"];
   "User splits them out?" -> "Note it as a scope concern, review as-is" [label="no"];
@@ -120,6 +133,8 @@ digraph scope_critique_resolution {
   "Can you name Y and Z?" -> "Drop it; report it as a discard" [label="no"];
   "Drop it; report it as a discard" -> "Rank surviving findings by severity";
   "Rank surviving findings by severity" -> "Present one issue: problem, options best-to-worst, recommendation";
+  "Rank surviving findings by severity" -> "Return every finding in the structured result; edit and write nothing" [label="under the delegate"];
+  "Return every finding in the structured result; edit and write nothing" -> "Done";
   "Present one issue: problem, options best-to-worst, recommendation" -> "Wait for the user's response";
   "Wait for the user's response" -> "Decision, or stop signal?";
   "Decision, or stop signal?" -> "Answer it, then re-put this issue's options" [label="no — a question, objection, or new consideration"];
@@ -413,3 +428,37 @@ paad/security/ is scratch, not state: it exists only on this machine, `git clean
 ```
 
 Say it even when only one file changed, and even when the user watched you change it.
+
+## Unattended mode
+
+This section applies only when this skill runs under the delegate. No person is present: never ask, and never stop to wait. Phases 1, 1.5 and 2 run as written, and every finding still has to be a claim you can defend. What changes is everything that reaches a person.
+
+**The document must be named.** Use only a file path from the arguments. The conversation, the common locations and the "what document should I review?" question do not apply.
+
+**Interaction points and their defaults.** Under `Defaults applied:`, list only the defaults that changed what the skill did in this run, one line each. An interaction point the run never reached (no conflicts found, no scope concern) is not listed.
+
+| Interaction point | Unattended default |
+|---|---|
+| Input resolution with no file path in the arguments | Blocked: the inputs must be named |
+| The named file does not exist or cannot be read, or any other stop before Phase 2 | Blocked, with the reason |
+| Reality check finds a conflict with recent commits ("present conflicts, resolve first") | Report it as a finding |
+| Scope shape: unrelated features bundled ("do you want to split these out?") | Report it as a finding, and review the whole document as-is |
+| Scope shape: a large document | Report it as a finding (the split, or why splitting isn't practical) |
+| One issue at a time, waiting for each decision | Return every finding, ranked by severity |
+| Update the spec, write a report, or both | Neither: the document is never edited and no report is written |
+
+**Severity** is pushback's own scale, one word per finding: `critical`, `serious`, `moderate`, `minor`.
+
+**Each finding** is a `### F<i> <severity> — <document and section>` heading, then these fields, one per line:
+
+- `Claim:` "If this ships as written, Y happens, because Z", with what Z rests on.
+- `Options:` the options from best to worst, as a numbered list.
+- `Recommendation:` the option you recommend and why, including what off-disk fact would change your mind, or that the finding is unconditional.
+
+**Discards** are counted, one line each, as Phase 2 already requires.
+
+**Skill-specific field:** `Outside the spec: <n>`, then one line for each defect in the surrounding code that does not make the spec's deliverable unreachable (the "one-line mention at the end").
+
+**Security.** Classify every finding and every discard with the definition in the Security findings paragraph above. A finding that meets it goes in the result's security section, in the same shape as an ordinary finding, and nowhere else in the result. A discard whose line would help an attacker is counted under `Security discards:` and listed there, not under `Discards:`. Write no security file.
+
+**Steps skipped:** every edit to the document, the report file, every security file, the Post-Review file list and its Security block. The result's `Files written: none` replaces them.

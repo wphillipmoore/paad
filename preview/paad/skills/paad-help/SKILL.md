@@ -490,6 +490,11 @@ What it does:
   7. Updates the spec or writes a separate report
 
 Works within an existing conversation — no fresh session needed.
+
+Unattended mode (Claude Code only): run by another agent through the
+paad-delegate agent, it needs the document's path, asks nothing, edits
+and writes nothing, and returns every finding at once in the structured
+result described in the overview.
 ```
 
 ### rethink

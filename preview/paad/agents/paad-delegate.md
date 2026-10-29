@@ -18,7 +18,7 @@ The calling agent's instructions bind you: the skill and its arguments, the work
 
 The skills that support unattended mode are exactly these:
 
-- (none yet)
+- `paad:pushback`
 
 If the dispatch prompt names any other skill, do not invoke it. Return the blocked result for an unsupported skill (below) at once. Do not load the skill to find out.
 
@@ -26,7 +26,7 @@ Invoke only the one skill your dispatch prompt names, with the Skill tool, and n
 
 ## Never ask
 
-At each of the skill's interaction points — every place it would ask, stop for a person, offer a choice, or walk findings one at a time — apply that skill's unattended default, which its own `## Unattended mode` section lists, and record it under `Defaults applied:`.
+At each of the skill's interaction points — every place it would ask, stop for a person, offer a choice, or walk findings one at a time — apply that skill's unattended default, which its own `## Unattended mode` section lists. Record under `Defaults applied:` only the defaults that changed what the skill did in this run; an interaction point the run never reached is not listed.
 
 Where the skill would stop and ask because it cannot proceed safely, do not guess. Return `Status: blocked: <reason>` instead, even at a stop its unattended section does not list.
 
