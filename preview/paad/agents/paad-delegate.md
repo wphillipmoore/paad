@@ -19,6 +19,7 @@ The calling agent's instructions bind you: the skill and its arguments, the work
 The skills that support unattended mode are exactly these:
 
 - `paad:pushback`
+- `paad:alignment`
 
 If the dispatch prompt names any other skill, do not invoke it. Return the blocked result for an unsupported skill (below) at once. Do not load the skill to find out.
 
