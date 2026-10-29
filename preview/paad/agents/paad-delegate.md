@@ -20,6 +20,7 @@ The skills that support unattended mode are exactly these:
 
 - `paad:pushback`
 - `paad:alignment`
+- `paad:agentic-review`
 
 If the dispatch prompt names any other skill, do not invoke it. Return the blocked result for an unsupported skill (below) at once. Do not load the skill to find out.
 
