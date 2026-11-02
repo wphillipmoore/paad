@@ -12,6 +12,10 @@ configuration and security paragraphs stay unchanged, because the shipped tree
 must keep passing check-config and check_security.py; this sentence is what
 overrides them under the delegate. A skill without the paragraph is not
 checked, so the shipped tree passes.
+
+When any skill carries the paragraph, the tree's delegate agent must exist and
+state each of DELEGATE_RULES, the result-format rules a caller checks, and a
+skill named in SKILL_RULES must state its own rules in its section.
 """
 
 import pathlib
@@ -26,11 +30,30 @@ UNATTENDED_OVERRIDE = (
     "any Security findings paragraph above writes no security file and asks nothing, the result "
     "format's line order governs, and the \"Unattended mode\" section below governs the run."
 )
+DELEGATE = pathlib.Path("agents") / "paad-delegate.md"
+DELEGATE_RULES = (
+    "`Defaults applied:` is either `Defaults applied: none` on one line, or the bare label followed by "
+    "one or more `- <interaction point>: <default>` lines, each naming an interaction point.",
+    "A skill-specific field that counts findings is computed from the findings the result returns "
+    "outside the security section, by severity and scope. agentic-review's out-of-scope count includes "
+    "out-of-scope additions, which it returns as `Suggestion` findings.",
+    "The security section is exactly the lines shown: the start marker, `Security: <k>`, the `### S<i>` "
+    "findings with their fields, `Security discards: <k>` followed by its `- ` lines, and the end marker. "
+    "Each label appears once, and no other line goes between the markers.",
+)
+SKILL_RULES = {
+    "agentic-review": (
+        "computed from the findings the result returns outside the security section, by severity and "
+        "scope. The out-of-scope count includes out-of-scope additions, which the result returns as "
+        "`Suggestion` findings",
+    ),
+}
 
 
 def check(skills_dir):
     """Return a list of problem strings; empty means the tree passes."""
     problems = []
+    any_marker = False
     for d in sorted(pathlib.Path(skills_dir).iterdir()):
         if not d.is_dir():
             continue
@@ -47,6 +70,22 @@ def check(skills_dir):
             problems.append(f'{d.name} has a "{UNATTENDED_SECTION}" section but does not carry the unattended paragraph')
         if has_marker and _normalize(UNATTENDED_OVERRIDE) not in _normalize(_paragraph(text)):
             problems.append(f"{d.name}'s unattended paragraph lacks the override sentence")
+        any_marker = any_marker or has_marker
+        if has_marker and has_section:
+            section = _normalize(_section(text))
+            for rule in SKILL_RULES.get(d.name, ()):
+                if _normalize(rule) not in section:
+                    problems.append(f"{d.name}'s unattended section lacks the rule: {rule}")
+    if any_marker:
+        delegate = pathlib.Path(skills_dir).parent / DELEGATE
+        try:
+            agent = _normalize(delegate.read_text(encoding="utf-8"))
+        except OSError as e:
+            problems.append(f"{DELEGATE}: cannot read the delegate agent ({e.strerror or e})")
+        else:
+            for rule in DELEGATE_RULES:
+                if _normalize(rule) not in agent:
+                    problems.append(f"{DELEGATE} lacks the result rule: {rule}")
     return problems
 
 
@@ -55,6 +94,14 @@ def _paragraph(text):
     start = text.index(UNATTENDED_MARKER)
     end = text.find("\n\n", start)
     return text[start:] if end == -1 else text[start:end]
+
+
+def _section(text):
+    """The unattended section: from its heading to the next "## " heading."""
+    lines = text.splitlines()
+    start = next(i for i, line in enumerate(lines) if line.rstrip() == UNATTENDED_SECTION)
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+    return "\n".join(lines[start:end])
 
 
 def _normalize(text):
@@ -71,9 +118,36 @@ def self_test():
     paragraph = f"{UNATTENDED_MARKER} this skill runs under the delegate. {UNATTENDED_OVERRIDE}\n\n"
     section = f"{UNATTENDED_SECTION}\n\nDefaults and stops.\n"
     with tempfile.TemporaryDirectory() as tmp:
-        root = pathlib.Path(tmp)
+        delegate = pathlib.Path(tmp) / DELEGATE
+        root = pathlib.Path(tmp) / "skills"
+        root.mkdir()
         _write_skill(root, "vibe", head.format("vibe") + "nothing here\n")
+        # No skill carries the paragraph, so the delegate is not required (the shipped tree).
         assert check(root) == [], check(root)
+
+        # A skill carries the paragraph: the delegate must exist and state every result rule.
+        _write_skill(root, "pushback", head.format("pushback") + paragraph + section)
+        assert check(root) == [f"{DELEGATE}: cannot read the delegate agent (No such file or directory)"], check(root)
+        delegate.parent.mkdir()
+        delegate.write_text("\n\n".join(DELEGATE_RULES[1:]) + "\n", encoding="utf-8")
+        assert check(root) == [f"{DELEGATE} lacks the result rule: {DELEGATE_RULES[0]}"], check(root)
+        delegate.write_text("- " + "\n- ".join(DELEGATE_RULES) + "\n", encoding="utf-8")
+        assert check(root) == [], check(root)
+
+        # A skill named in SKILL_RULES states its rules inside its unattended section, not elsewhere.
+        rule = SKILL_RULES["agentic-review"][0]
+        _write_skill(root, "agentic-review", head.format("agentic-review") + paragraph + section)
+        assert check(root) == [f"agentic-review's unattended section lacks the rule: {rule}"], check(root)
+        (root / "agentic-review" / "SKILL.md").write_text(
+            head.format("agentic-review") + paragraph + section + "\n## Later\n\n" + rule + "\n", encoding="utf-8"
+        )
+        assert check(root) == [f"agentic-review's unattended section lacks the rule: {rule}"], check(root)
+        (root / "agentic-review" / "SKILL.md").write_text(
+            head.format("agentic-review") + paragraph + section + "- the counts line, " + rule + ";\n", encoding="utf-8"
+        )
+        assert check(root) == [], check(root)
+        (root / "pushback" / "SKILL.md").unlink()
+        (root / "pushback").rmdir()
 
         _write_skill(root, "pushback", head.format("pushback") + paragraph + section)
         assert check(root) == [], check(root)

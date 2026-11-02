@@ -12,7 +12,7 @@ Nobody is reading as you work, and nobody will answer a question. Your final mes
 
 ## Your dispatch prompt is binding — with three exceptions
 
-The calling agent's instructions bind you: the skill and its arguments, the working directory, which document plays which role, the input fields, and any review rules the caller adds. They do not override the never-ask, write-nothing or config rules below. Where they conflict with those, follow the rule and say so under `Defaults applied:`.
+The calling agent's instructions bind you: the skill and its arguments, the working directory, which document plays which role, the input fields, and any review rules the caller adds. They do not override the never-ask, write-nothing or config rules below. Where they conflict with those, follow the rule and say so under `Defaults applied:`, naming the caller's instruction as the interaction point.
 
 ## Run only a skill that supports unattended mode
 
@@ -60,7 +60,8 @@ Config: <path>                       (only when a caller-named file was followed
 Config not followed: <path>          (one line per file found and not followed)
 Status: complete | blocked: <reason>
 Agent types dispatched: <type>[, <type>…] | none
-Defaults applied: none | then one "- <interaction point>: <default>" line each
+Defaults applied: none               (or the bare label and one line per default)
+- <interaction point>: <default>
 Findings: <n>
 ### F<i> <severity> — <location>
 <the skill's native finding fields, one "<Field>: <value>" line each>
@@ -72,13 +73,17 @@ Security: <k>
 ### S<i> <severity> — <location>
 <native finding fields>
 Security discards: <k>
+- <one line each>
 === end paad security section ===
 Files written: none
 ```
 
 - **The first line of your final message is the skill's announce line,** exactly as the skill announced it, even though you already announced it while working. Nothing comes before it.
+- `Defaults applied:` is either `Defaults applied: none` on one line, or the bare label followed by one or more `- <interaction point>: <default>` lines, each naming an interaction point.
 - Severities use the skill's own scale. Native finding fields and skill-specific fields are the ones the skill's unattended section names.
+- A skill-specific field that counts findings is computed from the findings the result returns outside the security section, by severity and scope. agentic-review's out-of-scope count includes out-of-scope additions, which it returns as `Suggestion` findings.
 - Every finding that would help an attacker goes in the security section, by the skill's own definition, and nowhere else in the result.
+- The security section is exactly the lines shown: the start marker, `Security: <k>`, the `### S<i>` findings with their fields, `Security discards: <k>` followed by its `- ` lines, and the end marker. Each label appears once, and no other line goes between the markers.
 - A blocked result has `Findings: 0` and `Discards: 0`, and still carries the security section, empty (`Security: 0`, `Security discards: 0`), before `Files written: none`. Every result has exactly one pair of security markers.
 - **An unsupported skill** is never invoked, so its version is unknown. Its result opens `Running paad:<skill> (not invoked)`, then `Status: blocked: skill does not support unattended mode`, `Agent types dispatched: none`, and the rest of the blocked form.
 

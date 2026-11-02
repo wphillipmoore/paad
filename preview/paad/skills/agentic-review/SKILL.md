@@ -448,7 +448,7 @@ Rank findings by severity, in scope first within each severity.
 
 **Skill-specific fields**, after the discards and in this order:
 
-- the counts line, as Post-Review item 1 gives it (`Critical: N (in-scope) / X (out-of-scope), Important: …, Suggestion: …`), counting only findings outside the security section;
+- the counts line, as Post-Review item 1 gives it (`Critical: N (in-scope) / X (out-of-scope), Important: …, Suggestion: …`), computed from the findings the result returns outside the security section, by severity and scope. The out-of-scope count includes out-of-scope additions, which the result returns as `Suggestion` findings;
 - `Agents dispatched:` the lenses dispatched, with each `BAIL:` reason and, for a large diff, the partitioning;
 - `Intent sources consulted:` the Spec Compliance intent sources used, `Intent:` paths first;
 - `Verifier warnings:` each `verifier-warning:` line, or `none`.
