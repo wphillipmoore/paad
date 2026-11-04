@@ -41,24 +41,29 @@ validate: ## Validate marketplace and all plugins
 	done
 
 check-versions: ## Check package and plugin versions match
+# Fork delta: the catalog serves preview/paad with no version anywhere, so Claude Code
+# tracks the commit and every push to develop reaches every box. package.json and
+# plugins/paad still carry upstream's version, which the preview announce lines follow.
 	@package_ver=$$(python3 -c "import json; print(json.load(open('package.json'))['version'])"); \
-	marketplace_ver=$$(python3 -c "import json; print(json.load(open('.claude-plugin/marketplace.json'))['plugins'][0]['version'])"); \
 	plugin_ver=$$(python3 -c "import json; print(json.load(open('plugins/paad/.claude-plugin/plugin.json'))['version'])"); \
-	preview_ver=$$(python3 -c "import json; print(json.load(open('preview/paad/.claude-plugin/plugin.json'))['version'])"); \
-	if [ "$$package_ver" != "$$marketplace_ver" ] || [ "$$package_ver" != "$$plugin_ver" ]; then \
-		echo "FAIL: Version mismatch — package.json ($$package_ver), marketplace.json ($$marketplace_ver), plugin.json ($$plugin_ver)"; \
+	if [ "$$package_ver" != "$$plugin_ver" ]; then \
+		echo "FAIL: Version mismatch — package.json ($$package_ver), plugins/paad plugin.json ($$plugin_ver)"; \
 		exit 1; \
 	fi; \
-	if [ "$$preview_ver" != "$$plugin_ver-preview" ]; then \
-		echo "FAIL: preview/paad is at $$preview_ver, expected $$plugin_ver-preview."; \
-		echo "      The suffix is how a transcript says which tree just ran, and 'make bump-version'"; \
-		echo "      writes both. A bare version here means preview would announce as the shipped tree."; \
+	if python3 -c "import json,sys; sys.exit(0 if any('version' in p for p in json.load(open('.claude-plugin/marketplace.json'))['plugins'] if p['name'] == 'paad') else 1)"; then \
+		echo "FAIL: the catalog's paad entry carries a version; boxes would pin it instead of tracking the commit."; \
 		exit 1; \
 	fi; \
-	echo "Versions match: $$package_ver (preview: $$preview_ver)"
+	if python3 -c "import json,sys; sys.exit(0 if 'version' in json.load(open('preview/paad/.claude-plugin/plugin.json')) else 1)"; then \
+		echo "FAIL: preview/paad's plugin.json carries a version; boxes would pin it instead of tracking the commit."; \
+		exit 1; \
+	fi; \
+	echo "Versions match: $$package_ver (preview: no version, tracks the commit)"
 
 check-skill-versions: check-skill-names ## Check every SKILL.md announces the correct version
-	@plugin_ver=$$(python3 -c "import json; print(json.load(open('$(TREE)/.claude-plugin/plugin.json'))['version'])"); \
+# Fork delta: a tree whose plugin.json has no version (preview/paad) announces
+# v<plugins/paad version>-preview.
+	@plugin_ver=$$(python3 -c "import json; m = json.load(open('$(TREE)/.claude-plugin/plugin.json')); print(m['version'] if 'version' in m else json.load(open('plugins/paad/.claude-plugin/plugin.json'))['version'] + '-preview')"); \
 	fail=0; \
 	for dir in $(SKILL_DIRS); do \
 		name=$$(basename "$$dir"); \

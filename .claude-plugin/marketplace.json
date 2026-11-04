@@ -11,9 +11,8 @@
   "plugins": [
     {
       "name": "paad",
-      "source": "./plugins/paad",
+      "source": "./preview/paad",
       "description": "Architecture analysis, code quality, and development workflow skills by Ovid",
-      "version": "2.1.0",
       "author": {
         "name": "Curtis \"Ovid\" Poe"
       },

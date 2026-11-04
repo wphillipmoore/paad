@@ -1,7 +1,6 @@
 {
   "name": "paad",
   "description": "Architecture analysis, code quality, and development workflow skills by Ovid",
-  "version": "2.1.0-preview",
   "author": {
     "name": "Curtis \"Ovid\" Poe"
   },
